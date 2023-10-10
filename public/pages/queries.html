@@ -1,0 +1,355 @@
+<html>
+  <head>
+    <link type="text/css" rel="stylesheet" href="/style/main.css" />
+    <link type="text/css" rel="stylesheet" href="/style/Table_Buddy.css" />
+    <link type="text/css" rel="stylesheet" href="/style/Paging_Bar.css" />
+    <link type="text/css" rel="stylesheet" href="/style/Sort_Buddy.css" />
+    <link type="text/css" rel="stylesheet" href="/style/MB_Dlg_Btn.css" />
+    <link type="text/css" rel="stylesheet" href="/style/Filter_Buddy.css" />
+    <style>
+      #query_dlg main
+      {
+        display: grid;
+        grid-template-columns: 1fr 3fr;
+        gap: 10px;
+        padding: 20px 10px;
+      }
+      #query_dlg label
+      {
+        text-align: right;
+      }
+    </style>
+
+    <script type="module">
+      import Utils from "/lib/Utils.js";
+      import JW_Utils from "/lib/JW_Utils.js";
+      import Table_Buddy from "/node_modules/table-buddy/Table_Buddy.mjs";
+      import Paging_Bar from "/node_modules/table-buddy/Paging_Bar.mjs";
+      import Datasource from "/node_modules/table-buddy/Datasource.mjs";
+      import MB_Dlg_Btn from "/node_modules/menu-buddy/MB_Dlg_Btn.mjs";
+      import Filter_Buddy from "/node_modules/filter-buddy/Filter_Buddy.mjs";
+      import Sort_Buddy from "/component/Sort_Buddy.mjs";
+      import Input_Span from "/component/Input_Span.mjs";
+
+      class Queries_Datasource extends Datasource.Client_Paging 
+      {
+        Get_Columns()
+        {
+          return [
+            {title_fn: Render_Head_Menu_Cell, field_fn: Render_Menu_Cell}, 
+            {title: "Id.", field_name: "id", cell_class: "id"}, 
+            {title: "Title", field_name: "title"}, 
+            {title: "Search Terms", field_name: "terms"}, 
+            {title: "Parent", field_fn: (q) => Trend.Get_Query_Title(q.parent_id)}, 
+            {title: "Order", field_name: "order"}, 
+          ];
+        }
+
+        Update_Data = (f, s) => Update_Data(this, f, s)
+      }
+
+      main();
+      async function main()
+      {
+        await JW_Utils.Import_API();
+        JW_Utils.Update_Access();
+
+        window.parent.jw_header.subtitle = "Queries";
+        const filters =
+        [
+        {
+            id: "WHERE_ID",
+            label: "Id.",
+            filter_class: Filter_Buddy.Text, 
+          },
+          {
+            id: "WHERE_TITLE",
+            label: "Title",
+            filter_class: Filter_Buddy.Text, 
+          },
+          {
+            id: "WHERE_TERMS",
+            label: "Search Terms",
+            filter_class: Filter_Buddy.Text, 
+          },
+          {
+            id: "WHERE_QUERY",
+            label: "Parent Query",
+            filter_class: Filter_Buddy.Select, 
+            options: await Query.Select_As_Options()
+          },
+          {
+            id: "WHERE_ORDER",
+            label: "Order",
+            filter_class: Filter_Buddy.Number, 
+          },
+        ];
+        query_filter.filters = filters;
+        query_sort.Load();
+        queries.datasource = new Queries_Datasource();
+
+        count_hdr.addEventListener("click", () => count_dlg.close());
+        count_close_btn.addEventListener("click", () => count_dlg.close());
+        save_btn.addEventListener("click", On_Click_Save);
+        query_hdr.addEventListener("click", () => query_dlg.close());
+        cancel_btn.addEventListener("click", () => query_dlg.close());
+        query_filter.addEventListener("search", On_Search);
+      }
+
+      function On_Search(event)
+      {
+        queries.where = event.detail;
+      }
+
+      async function Update_Data(ds, filter_by, sort_by)
+      {
+        queries.classList.add("is-busy");
+        ds.data = await Query.Select_All(filter_by, sort_by);
+        queries.classList.remove("is-busy");
+      }
+
+      function Render_Head_Menu_Cell()
+      {
+        const menu_options =
+        [
+          { id: 1, title: "New", click: On_Click_New},
+          { id: 2, title: "Insert All Query Trends", click: On_Click_Update_All},
+          { id: 3, title: "xDelete Selected"},
+        ];
+        const menu_elem = new MB_Dlg_Btn();
+        menu_elem.options_flat = menu_options;
+
+        return menu_elem;
+      }
+
+      function Render_Menu_Cell(query, row_idx, cell_elem)
+      {
+        const menu_options =
+        [
+          { id: 1, title: "xView", },
+          { id: 2, title: "xView Trend Data", },
+          { id: 3, title: "xView Chart", },
+          { id: 4, title: "View Jobs", click: () => On_Click_View_Jobs(query)},
+          { id: 5, title: "Add Query", click: () => On_Click_Add(query)},
+          { id: 5, title: "Edit", click: () => On_Click_Edit(query)},
+          { id: 6, title: "Delete", click: () => On_Click_Delete(query)},
+          { id: 7, title: "Extract Job Count", click: () => On_Click_Execute(query)},
+          { id: 8, title: "Update Job Count", click: () => On_Click_Update(query)},
+        ];
+        const menu_elem = new MB_Dlg_Btn();
+        menu_elem.options_flat = menu_options;
+
+        return menu_elem;
+      }
+
+      function On_Click_View_Jobs(query)
+      {
+        const query_terms = query.terms.includes("%") ? query.terms : encodeURIComponent(query.terms);
+        const indeed_url = "https://www.indeed.com/jobs?q=" + query_terms;
+        window.open(indeed_url, "_blank");
+      }
+
+      function On_Click_New()
+      {
+        Clr_Input();
+        query_dlg.showModal();
+      }
+
+      function On_Click_Add(query)
+      {
+        const new_query =
+        {
+          id: null,
+          title: null,
+          terms: null,
+          parent_id: query.id,
+          order: null
+        };
+        Set_Input(new_query);
+        query_dlg.showModal();
+      }
+
+      function On_Click_Edit(query)
+      {
+        Set_Input(query);
+        query_dlg.showModal();
+      }
+
+      async function On_Click_Delete(query)
+      {
+        const confirmed = window.confirm("Are you sure?");
+        if (confirmed)
+        {
+          const is_deleted = await Query.Delete(query.id);
+          if (is_deleted)
+          {
+            queries.Update_Render();
+          }
+          else
+          {
+            Utils.Handle_Errors(Query);
+          }
+        }
+      }
+
+      async function On_Click_Save()
+      {
+        const form_data = Get_Input();
+        if (form_data)
+        {
+          const id = await Query.Save(form_data);
+          if (id)
+          {
+            queries.Update_Render();
+          }
+          else
+          {
+            Utils.Handle_Errors(Query);
+          }
+        }
+        query_dlg.close();
+      }
+
+      async function On_Click_Execute(query)
+      {
+        count_query.innerText = query.title;
+        count_no.innerText = "Calculating...";
+        count_dlg.showModal();
+
+        const count = await Jobs.Get_Job_Count(query.terms);
+        count_no.innerText = count;
+      }
+
+      async function On_Click_Update(query)
+      {
+        Show_Note("Updating query " + query.title, () => Trend.Insert_By_Query(query));
+      }
+
+      function On_Click_Update_All()
+      {
+        Show_Note("Updating all query trend data", () => Query.Insert_All());
+      }
+
+      async function Show_Note(msg, upd_fn)
+      {
+        upd_note.innerText = msg + "...";
+        upd_note.hidden = false;
+
+        let upd_ok = false;
+        try 
+        {
+          upd_ok = await upd_fn();
+        }
+        catch (error)
+        {
+          console.error(error);
+        }
+        if (upd_ok)
+        {
+          upd_note.innerText += " completed.";
+        }
+        else
+        {
+          upd_note.innerText += " there was a problem.";
+        }
+
+        setTimeout(() => upd_note.hidden = true, 5000);
+      }
+
+      function Clr_Input()
+      {
+        const elems = document.querySelectorAll("[name]");
+        if (!Utils.isEmpty(elems))
+        {
+          for (const elem of elems)
+          {
+            elem.value = null;
+          }
+        }
+      }
+
+      function Get_Input()
+      {
+        let res = null;
+
+        const elems = document.querySelectorAll("[name]");
+        if (!Utils.isEmpty(elems))
+        {
+          res = {};
+          for (const elem of elems)
+          {
+            const value = elem.value;
+            if (Utils.isEmpty(value))
+            {
+              res[elem.name] = null;
+            }
+            else if (elem.type == "number")
+            {
+              res[elem.name] = elem.valueAsNumber;
+            }
+            else
+            {
+              res[elem.name] = value;
+            }
+          }
+        }
+
+        return res;
+      }
+
+      function Set_Input(data)
+      {
+        const elems = document.querySelectorAll("[name]");
+        if (!Utils.isEmpty(elems))
+        {
+          for (const elem of elems)
+          {
+            const value = data[elem.name]
+            if (value == undefined)
+            {
+              elem.value = null;
+            }
+            else
+            {
+              elem.value = value;
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <filter-buddy id="query_filter" view="min"></filter-buddy>
+    <sort-buddy id="query_sort" table-id="queries">
+      <li sort-code="ORDERBY_TITLE">Title</li>
+      <li sort-code="ORDERBY_PARENT">Parent</li>
+      <li sort-code="ORDERBY_ORDER">Order</li>
+    </sort-buddy>
+    <paging-bar id="queries_paging" table-id="queries"></paging-bar>
+    <table-buddy id="queries" page-size="10" render-as="tiles"></table-buddy>
+
+    <dialog id="count_dlg">
+      <header id="count_hdr">Number of jobs found for <span id="count_query"></span></header>
+      <main id="count_no"></main>
+      <footer><button id="count_close_btn">Ok</button></footer>
+    </dialog>
+
+    <dialog id="query_dlg">
+      <header id="query_hdr">Query Details</header>
+      <main>
+        <label>Id.</label><input-span name="id" placeholder="N/A"></input-span>
+        <label>Title</label><input name="title" type="text">
+        <label>Search Terms</label><input name="terms" type="text">
+        <label>Parent</label><input name="parent_id" type="text">
+        <label>Order</label><input name="order" type="number" min="0" max="9999999">
+      </main>
+      <footer>
+        <button id="save_btn">Save</button>
+        <button id="cancel_btn">Cancel</button>
+      </footer>
+    </dialog>
+
+    <div id="upd_note" class="progress-note" hidden></div>
+  </body>
+</html>

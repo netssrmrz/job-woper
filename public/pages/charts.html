@@ -1,0 +1,821 @@
+<html>
+
+<head>
+  <title>Job Woper</title>
+  <link rel="shortcut icon" type="image/icon" href="/images/favicon/favicon.ico"/>
+  <style>
+    @font-face
+    {
+      font-family: roboto;
+      src: url(/fonts/Roboto-Regular.ttf);
+    }
+
+    @font-face
+    {
+      font-family: roboto-light;
+      src: url(/fonts/Roboto-Light.ttf);
+    }
+
+    @font-face
+    {
+      font-family: roboto-thin;
+      src: url(/fonts/Roboto-Thin.ttf);
+    }
+
+    @font-face
+    {
+      font-family: white-rabbit;
+      src: url(/fonts/whitrabt.ttf);
+    }
+
+    @font-face
+    {
+      font-family: vector-waves;
+      src: url("/fonts/Vector Waves.ttf");
+    }
+
+    @font-face
+    {
+      font-family: octagonal-ultra-light;
+      src: url("/fonts/octaul-017.ttf");
+    }
+
+    @font-face
+    {
+      font-family: octagonal-light;
+      src: url("/fonts/octal-017.ttf");
+    }
+
+    @font-face
+    {
+      font-family: octagonal-regular;
+      src: url("/fonts/octar-017.ttf");
+    }
+
+    @font-face
+    {
+      font-family: octagonal-bold;
+      src: url("/fonts/octal-017.ttf");
+    }
+
+    @font-face
+    {
+      font-family: hyperspace-bold-italic;
+      src: url("/fonts/Hyperspace Bold Italic.otf");
+    }
+
+    @font-face
+    {
+      font-family: hyperspace-bold;
+      src: url("/fonts/Hyperspace Bold.otf");
+    }
+
+    @font-face
+    {
+      font-family: hyperspace-italic;
+      src: url("/fonts/Hyperspace Italic.otf");
+    }
+
+    @font-face
+    {
+      font-family: hyperspace;
+      src: url("/fonts/Hyperspace.otf");
+    }
+
+    @font-face
+    {
+      font-family: geo-italic;
+      src: url("/fonts/Geo-Italic.ttf");
+    }
+
+    @font-face
+    {
+      font-family: geo-regular;
+      src: url("/fonts/Geo-Regular.ttf");
+    }
+
+    @font-face
+    {
+      font-family: electrolize-regular;
+      src: url("/fonts/Electrolize-Regular.ttf");
+    }
+
+    #blogger
+    {
+      margin: -2px;
+    }
+
+    #signature
+    {
+      font-size: 14px;
+      color: #00ff00;
+      text-align: right;
+    }
+
+    #signature a
+    {
+      color: #00ff00;
+      text-decoration: none;
+    }
+
+    #signature a:visited
+    {
+      color: #00ff00;
+      text-decoration: none;
+    }
+
+    app-drawer-layout:not([narrow]) [drawer-toggle]
+    {
+      display: none;
+    }
+
+    body
+    {
+      font-family: hyperspace;
+      color: #00ff00;
+      background-color: black;
+      text-shadow: #00ff00 0px 0px 10px, #00ff00 0px 0px 10px;
+      letter-spacing: 1px;
+    }
+
+    .btn
+    {
+      background-color: #000;
+      margin: 0px 10px 0px 0px;
+      font-family: hyperspace-bold;
+      padding: 5px 10px 5px 12px;
+      cursor: pointer;
+    }
+
+    .btn:enabled
+    {
+      color: #0f0;
+      border: 2px solid #0f0;
+    }
+
+    .btn:disabled
+    {
+      color: #888;
+      border: 2px solid #444;
+    }
+
+    #title
+    {
+      font-size: 30px;
+    }
+
+    #title img
+    {
+      vertical-align: bottom;
+      width: 40px;
+    }
+
+    #query_items
+    {
+      height: 100%;
+      overflow: auto;
+      background-color: black;
+    }
+
+    #query_items::-webkit-scrollbar
+    {
+      width: 1em;
+    }
+
+    #query_items::-webkit-scrollbar-track
+    {
+      background-color: #002200;
+    }
+
+    #query_items::-webkit-scrollbar-thumb
+    {
+      background-color: #00aa00;
+    }
+
+    #intro_div
+    {
+      font-size: 13px;
+      xborder: 1px solid #f00;
+    }
+
+    #curve_chart
+    {
+      height: 90%;
+      display: block;
+      xborder: 1px solid #00f;
+    }
+
+    #curve_chart p
+    {
+      margin: 0px 50px 25px 50px;
+    }
+
+    #man_items
+    {
+      margin: 0px 50px 25px 50px;
+    }
+
+    #man_items li
+    {
+      margin: 0px 0px 10px 0px;
+    }
+
+    .overlay
+    {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: radial-gradient(circle, rgba(0,0,0,1) 2%, rgba(0,0,0,0.4) 60%);
+      align-items: center;
+      justify-content: center;
+      display: none;
+    }
+
+    paper-toggle-button
+    {
+      --paper-toggle-button-checked-bar-color: #00ff00;
+      --paper-toggle-button-checked-button-color: #00ff00;
+      --paper-toggle-button-checked-ink-color: #00ff00;
+      --paper-toggle-button-unchecked-bar-color: #ff0000;
+      --paper-toggle-button-unchecked-button-color: #ff0000;
+      --paper-toggle-button-unchecked-ink-color: #ff0000;
+      --paper-toggle-button-label-color: #00ff00;
+    }
+
+    div.google-visualization-tooltip
+    {
+      background-color: #000000;
+      border: 1px solid #00ff00;
+      box-shadow: none;
+    }
+    
+    #menu_items::-webkit-scrollbar
+    {
+      width: 1em;
+    }
+
+    #menu_items::-webkit-scrollbar-track
+    {
+      background-color: #002200;
+    }
+
+    #menu_items::-webkit-scrollbar-thumb
+    {
+      background-color: #00aa00;
+    }
+
+    #menu_items
+    {
+      overflow: auto;
+      height: 100%;
+    }
+
+    html
+    {
+      --app-drawer-width: 300px;
+    }
+
+    #stats_elem
+    {
+      display: none;
+      margin-left: 20px;
+      text-align: center;
+      xborder: 1px solid #0f0;
+    }
+  </style>
+
+  <script defer src="https://decms-6dc54.firebaseapp.com/components/index_ext.js" type="module"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="module">
+    import '/polymer/iron-icons/iron-icons.js';
+    import '/polymer/iron-collapse/iron-collapse.js';
+    import '/polymer/paper-icon-button/paper-icon-button.js';
+    import '/polymer/paper-toast/paper-toast.js';
+    import '/polymer/paper-spinner/paper-spinner.js';
+    import '/polymer/paper-checkbox/paper-checkbox.js';
+    import '/polymer/paper-toggle-button/paper-toggle-button.js';
+    import '/polymer/app-layout/app-drawer-layout/app-drawer-layout.js';
+    import '/polymer/app-layout/app-drawer/app-drawer.js';
+    import '/polymer/app-layout/app-header-layout/app-header-layout.js';
+    import '/polymer/app-layout/app-header/app-header.js';
+    import '/polymer/app-layout/app-toolbar/app-toolbar.js';
+    import '/tb-elements/query-menu-item.js';
+    import '/tb-elements/query-stats.js';
+    import '/tb-elements/query-rankings.js';
+    import '/tb-elements/query-weights.js';
+    import JW_Utils from "/lib/JW_Utils.js";
+    import Utils from "/lib/Utils.js";
+
+    let db, chart_data;
+
+    // Events =====================================================================================
+
+    Main();
+    async function Main()
+    {
+      var toggle_elem, menu_elem, view_chart_elem;
+
+      await JW_Utils.Import_API();
+
+      menu_elem = document.createElement("query-menu-item");
+      menu_elem.id = "query_menu";
+      menu_elem.db = db;
+      menu_elem.On_Show_Chart = On_Show_Chart;
+      menu_elem.On_Choose_Chart = On_Choose_Chart;
+      menu_elem.On_Choose_Trend = On_Choose_Trend;
+      menu_items.append(menu_elem);
+
+      Init_Chart();
+
+      toggle_elem = document.getElementById("rel_button");
+      toggle_elem.onclick = On_Relative_Click;
+
+      view_chart_elem = document.getElementById("view_chart_button");
+      view_chart_elem.onclick = On_View_Chart_Click;
+      view_chart_elem.disabled = true;
+
+      const query = await Query.Select_By_Title("Operating System");
+      const child_queries = await Query.Select_Children_By_Id(query.id);
+      Show_Trend(query, child_queries);
+    }
+
+    function On_View_Chart_Click()
+    {
+      JW_Utils.Hide(intro_div);
+      JW_Utils.Hide(stats_elem);
+      JW_Utils.Show(curve_chart);
+      view_chart_button.disabled = true;
+    }
+
+    function On_Choose_Trend(event)
+    {
+      event.stopPropagation();
+      JW_Utils.Hide(intro_div);
+      Show_Trend(this.query, this.child_queries);
+    }
+
+    function On_Choose_Chart(event)
+    {
+      event.stopPropagation();
+      JW_Utils.Hide(intro_div);
+      JW_Utils.Hide(stats_elem);
+      JW_Utils.Show(curve_chart);
+
+      if (this.checked)
+      {
+        Draw_Chart_By_Query_Id(db, this.query.id, false, Is_Relative_Chart());
+      }
+      else if (Charts_Displayed(chart_data) > 1)
+      {
+        if (Charts_Displayed(chart_data) == 2)
+        {
+          Set_Absolute_Chart();
+        }
+        Hide_Chart(this.query, Is_Relative_Chart());
+      }
+      else
+      {
+        this.checked = true;
+      }
+    }
+
+    function On_Show_Chart(event)
+    {
+      Set_Absolute_Chart();
+      view_chart_button.disabled = true;
+
+      query_menu.Uncheck();
+      this.querySelector("#checkbox").checked = true;
+
+      JW_Utils.Hide(intro_div);
+      JW_Utils.Hide(stats_elem);
+      JW_Utils.Show(curve_chart);
+
+      Draw_Chart_By_Query_Id(db, this.query.id, true, false);
+    }
+
+    function On_Relative_Click()
+    {
+      if (Charts_Displayed(chart_data) < 2 && Is_Relative_Chart())
+      {
+        Set_Absolute_Chart();
+      }
+
+      Draw_Chart(chart_data, Is_Relative_Chart());
+    }
+
+    // UI =========================================================================================
+
+    function Show_Trend(query, child_queries)
+    {
+      JW_Utils.Clr(stats_elem);
+
+      // add rankings
+      const rank_elem = document.createElement("query-rankings");
+      rank_elem.db = db;
+      rank_elem.query = query;
+      rank_elem.child_queries = child_queries;
+      stats_elem.append(rank_elem);
+
+      // add pie chart
+      const weight_elem = document.createElement("query-weights");
+      weight_elem.db = db;
+      weight_elem.query = query;
+      weight_elem.child_queries = child_queries;
+      stats_elem.append(weight_elem);
+
+      stats_elem.append(document.createElement("br"));
+
+      // add movement panels for each tech
+      for (let c=0; c<child_queries.length; c++)
+      {
+        const stat_elem = document.createElement("query-stats");
+        stat_elem.db = db;
+        stat_elem.query = child_queries[c];
+
+        stats_elem.append(stat_elem);
+      }
+
+      JW_Utils.Hide(curve_chart);
+      JW_Utils.Show(stats_elem);
+      view_chart_button.disabled = false;
+    }
+
+    function Init_Chart()
+    {
+      var chart_elem;
+
+      chart_elem = document.getElementById('curve_chart');
+
+      google.charts.load('current', { 'packages': ['corechart'] });
+      google.charts.setOnLoadCallback(Load_OK);
+      function Load_OK()
+      {
+        var chart;
+
+        chart = new google.visualization.LineChart(chart_elem);
+        chart_elem.chart = chart;
+      }
+    }
+
+    async function Draw_Chart_By_Query_Id(db, id, single_query, is_relative)
+    {
+      document.getElementById("wait_dlg").style.display = "flex";
+      const query = await Query.Select_By_Id(db, id);
+      const data_vals = await Trend.Select_Chart_Vals_By_Query(db, query);
+      if (Utils.isEmpty(data_vals))
+        document.getElementById("no_data").show();
+      else
+      {
+        for (const data_val of data_vals)
+        {
+          data_val[0] = new Date(data_val[0]);
+        }
+
+        if (chart_data == null || single_query)
+          chart_data = Copy_Data(data_vals);
+        else
+          Merge_Data(chart_data, data_vals);
+
+        Draw_Chart(chart_data, is_relative);
+      }
+
+      document.getElementById("wait_dlg").style.display = "none";
+    }
+
+    function Hide_Chart(query, is_relative)
+    {
+      var i, col_idx, new_data;
+
+      for (i = 0; i < chart_data[0].length; i++)
+        if (chart_data[0][i] == query.title)
+          col_idx = i;
+
+      new_data = [];
+      for (i = 0; i < chart_data.length; i++)
+      {
+        chart_data[i].splice(col_idx, 1);
+        if (Row_Has_Data(chart_data[i]))
+          new_data.push(chart_data[i]);
+      }
+      chart_data = new_data;
+
+      Draw_Chart(chart_data, is_relative);
+    }
+
+    function Draw_Chart(chart_data, is_relative)
+    {
+      var 
+        data_table, options, draw_data, chart_elem,
+        height, width;
+
+      if (is_relative)
+        draw_data = To_Relative_Data(chart_data);
+      else
+        draw_data = chart_data;
+
+      data_table = google.visualization.arrayToDataTable(draw_data);
+
+      chart_elem = document.getElementById("curve_chart");
+      width = chart_elem.clientWidth - 70;
+      height = chart_elem.clientHeight - 70;
+      if (height > width)
+      {
+        height = width;
+      }
+
+      options = {
+        //curveType: 'line',
+        curveType: 'function',
+        chartArea: { left: 50, top: 50, width, height },
+        legend:
+        {
+          position: "top",
+          textStyle: { fontName: "hyperspace-bold", fontSize: 14, color: "#00ff00" }
+        },
+        animation: { startup: false, duration: 0, easing: 'linear', },
+        interpolateNulls: true,
+        fontName: "roboto-light",
+        fontSize: 9,
+        backgroundColor: "#000000",
+        vAxis:
+        {
+          baselineColor: "#002200",
+          gridlines: { color: "#002200" },
+          minorGridlines: { color: "#002200" },
+          textStyle: { color: "#00ff00" }
+        },
+        hAxis:
+        {
+          baselineColor: "#002200",
+          gridlines: { color: "#002200" },
+          minorGridlines: { color: "#002200" },
+          textStyle: { color: "#00ff00" }
+        },
+        tooltip:
+        {
+          textStyle: { color: "#00ff00" },
+          isHtml: true
+        }
+      };
+      chart_elem.chart.draw(data_table, options);
+    }
+
+    function Is_Relative_Chart()
+    {
+      return document.getElementById("rel_button").checked;
+    }
+
+    function Set_Absolute_Chart()
+    {
+      document.getElementById("rel_button").checked = false;
+    }
+
+    // Data Manipulation ==========================================================================
+
+    function Charts_Displayed(chart_data)
+    {
+      var res = 0;
+
+      if (chart_data && chart_data.length > 0 && chart_data[0].length > 1)
+        res = chart_data[0].length - 1;
+
+      return res;
+    }
+
+    function To_Relative_Data(chart_data)
+    {
+      var row, col, rel_data = [], row_data, row_tot;
+
+      rel_data.push(chart_data[0]);
+      for (row = 1; row < chart_data.length; row++)
+      {
+        row_data = New_Filled_Row(chart_data, row);
+        row_tot = Calc_Row_Total(row_data);
+        for (col = 1; col < row_data.length; col++)
+        {
+          if (row_data[col] != null)
+          {
+            row_data[col] = row_data[col] / row_tot * 100;
+            if (row_data[col] == 100)
+              row_data[col] = null;
+          }
+        }
+        rel_data.push(row_data);
+      }
+
+      return rel_data;
+    }
+
+    function New_Filled_Row(chart_data, row_index)
+    {
+      var col, new_row, curr_row;
+
+      curr_row = chart_data[row_index];
+
+      new_row = [];
+      new_row.push(curr_row[0]);
+
+      for (col = 1; col < curr_row.length; col++)
+      {
+        if (curr_row[col] == null)
+          new_row.push(Find_Prev_Val(chart_data, row_index-1, col));
+        else
+          new_row.push(curr_row[col]);
+      }
+
+      return new_row;
+    }
+
+    function Find_Prev_Val(chart_data, row_index, col_index)
+    {
+      var row, val = null;
+
+      for (row = row_index; row > 0; row--)
+      {
+        if (chart_data[row][col_index] != null)
+        {
+          val = chart_data[row][col_index];
+          break;
+        }
+      }
+
+      return val;
+    }
+
+    function Calc_Row_Total(row_data)
+    {
+      var col, tot=0;
+
+      for (col = 1; col < row_data.length; col++)
+      {
+        tot += row_data[col];
+      }
+
+      return tot;
+    }
+
+    function Row_Has_Data(row)
+    {
+      var i, has_data = false;
+
+      for (i = 1; i < row.length && !has_data; i++)
+        if (row[i])
+          has_data = true;
+
+      return has_data;
+    }
+
+    function Copy_Data(data)
+    {
+      var res = null, i;
+
+      if (data)
+      {
+        res = [];
+        for (i = 0; i < data.length; i++)
+          res.push(data[i].slice());
+      }
+      return res;
+    }
+
+    function Merge_Data(dest, src)
+    {
+      var i, row, start_i = 1;
+
+      if (dest && src)
+      {
+        Add_Column(dest, src[0][1]);
+        for (i = 1; i < src.length; i++)
+        {
+          const src_val = src[i];
+          const src_date = src_val[0];
+          row = Find_Row(dest, src_date, start_i);
+          if (row)
+          {
+            start_i = row.index;
+            if (row.action == "add")
+            {
+              Add_Row(dest, src_val);
+            }
+            else if (row.action == "insert")
+            {
+              Insert_Row(dest, row.index, src_val);
+            }
+            else if (row.action == "set")
+            {
+              Set_Row(dest, row.index, src_val);
+            }
+          }
+        }
+      }
+    }
+
+    function Add_Column(dst, name)
+    {
+      var i, title_row;
+
+      for (i = 0; i < dst.length; i++)
+        dst[i].push(null);
+      title_row = dst[0];
+      title_row[title_row.length - 1] = name;
+    }
+
+    function Find_Row(data, val, start_i)
+    {
+      var i, res = null;
+
+      if (data && val)
+      {
+        for (i = start_i; i < data.length && res == null; i++)
+        {
+          if (data[i][0] == val)
+            res = { index: i, action: "set" };
+          else if (data[i][0] > val)
+            res = { index: i, action: "insert" };
+        }
+        if (res == null)
+          res = { index: data.length, action: "add" };
+      }
+
+      return res;
+    }
+
+    function Add_Row(dst, row)
+    {
+      var new_row = New_Row(row, dst[0].length);
+      dst.push(new_row);
+    }
+
+    function Insert_Row(dst, row_index, row)
+    {
+      var new_row = New_Row(row, dst[0].length);
+      dst.splice(row_index, 0, new_row);
+    }
+
+    function Set_Row(dst, row_index, row)
+    {
+      var dst_row = dst[row_index];
+      dst_row[dst_row.length - 1] = row[1];
+    }
+
+    function New_Row(row, required_length)
+    {
+      var new_row, i;
+
+      new_row = [];
+      for (i = 0; i < required_length; i++)
+        new_row.push(null);
+      new_row[0] = row[0]; // insert date
+      new_row[required_length - 1] = row[1]; // insert job count
+
+      return new_row;
+    }
+  </script>
+</head>
+
+<body>
+  <de-project id="p1" key="job_woper"></de-project>
+
+  <app-drawer-layout>
+
+    <app-drawer id="menu_drawer" slot="drawer" width="300">
+      <div id="menu_items"></div>
+    </app-drawer>
+
+    <app-header-layout>
+      <app-header id="header" slot="header">
+        <app-toolbar>
+          <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+          <button id="view_chart_button" class="btn">View Chart</button>
+          <paper-toggle-button id="rel_button">Relative</paper-toggle-button>
+        </app-toolbar>
+      </app-header>
+
+      <div id="intro_div">
+        <de-html key="hp" project-id="p1"></de-html>
+        <p id="signature">- <a href="https://www.linkedin.com/in/esteban-ramirez-91a66b14/">Esteban (Steven) Ramirez</a>
+        <a href="https://www.linkedin.com/in/esteban-ramirez-91a66b14" target="_blank"><img src="/images/In-2C-14px.png" /></a>
+        <a href="http://ramirezsystems.blogspot.com" target="_blank"><img id="blogger" src="/images/icons8-blogger-18.png" /></a></p>
+      </div>
+
+      <div id="curve_chart">
+      </div>
+
+      <div id="stats_elem">
+      </div>
+
+    </app-header-layout>
+  </app-drawer-layout>
+
+  <div id="wait_dlg" class="overlay">
+    <paper-spinner active></paper-spinner>
+  </div>
+
+  <paper-toast id="no_data" text="No data is available yet."></paper-toast>
+
+</body>
+
+</html>

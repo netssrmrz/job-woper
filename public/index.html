@@ -1,0 +1,121 @@
+<html>
+  <head>
+    <meta name="google-adsense-account" content="ca-pub-7012708134579766">
+    <link type="text/css" rel="stylesheet" href="/style/main.css" />
+    <style>
+      body
+      {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-image: url(../images/world_map.svg);
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+
+      h1
+      {
+        font-size: 10rem;
+        margin: 0;
+      }
+      h3
+      {
+        margin: 0 0 100px 0;
+      }
+      h4
+      {
+        margin: 0;
+        color: #aaa;
+        text-shadow: none;
+      }
+      hr
+      {
+        border-color: #0f0;
+        color: #0f0;
+        background-color: #0f0;
+      }
+
+      .wait::before
+      {
+        content: "Wait...";
+      }
+      .wait span
+      {
+        display: none;
+      }
+    </style>
+    <script type="module">
+      import JW_Utils from "/lib/JW_Utils.js";
+      import '/__/firebase/9.4.0/firebase-app-compat.js';
+      import '/__/firebase/9.4.0/firebase-auth-compat.js';
+      import '/__/firebase/init.js?useEmulator=true';
+
+      main();
+
+      async function main()
+      {
+        //console.log("index.main()")
+
+        const user = await Check_Login();
+        JW_Utils.Set_User(user);
+        
+        if (user)
+        {
+          window.open("/pages/index.html", "_self");
+        }
+        else
+        {
+          sign_in_btn.classList.remove("wait");
+          sign_in_btn.disabled = false;
+          sign_in_btn.addEventListener("click", On_Click_Sign_In);
+
+          guest_btn.addEventListener("click", On_Click_Guest);
+        }
+      }
+
+      async function Check_Login()
+      {
+        let user = null;
+
+        try
+        {
+          const res = await firebase.auth().getRedirectResult();
+          user = res.user;
+        }
+        catch (error)
+        {
+          console.error(error);
+        }
+
+        return user;
+      }
+
+      function On_Click_Sign_In()
+      {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithRedirect(provider);
+      }
+
+      function On_Click_Guest()
+      {
+        window.open("/pages/index.html?view=charts.html", "_self");
+      }
+    </script>
+  </head>
+
+  <body>
+    <h1>Job Woper</h1>
+    <h4>(War Operation Plan Employment Response)</h4>
+    <h3>Tracking the fight for I.T. world domination</h3>
+    <button id="guest_btn">
+      <span>View as Guest</span>
+    </button>
+    <hr>
+    <button id="sign_in_btn" disabled class="wait">
+      <span>Sign In</span>
+      <span>(with Google)</span>
+    </button>
+  </body>
+</html>

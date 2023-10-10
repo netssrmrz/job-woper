@@ -1,0 +1,98 @@
+<html>
+  <head>
+    <link type="text/css" rel="stylesheet" href="/style/main.css" />
+    <style>
+      body
+      {
+        width: auto;
+        height: auto;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      a
+      {
+        background-color: #440;
+        color: #ff0;
+        padding: 20px;
+        border: none;
+        letter-spacing: 2px;
+        display: inline-block;
+        width: 45%;
+      }
+      header
+      {
+        font-size: 30px;
+        margin: 0 0 10px 0;
+      }
+      hr
+      {
+        margin: 10px 0 20px 0;
+      }
+      span
+      {
+        font-size: 30px;
+      }
+      section.spaced
+      {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+    </style>
+    <script type="module">
+      //import Utils from "./lib/Utils.js";
+      import JW_Utils from "/lib/JW_Utils.js";
+
+      main();
+      async function main()
+      {
+        //console.log("dashboard.main()");
+
+        await JW_Utils.Import_API();
+        
+        const query_count = await Query.Select_Count();
+        JW_Utils.Set_Text(no_queries, query_count);
+
+        const trend_stats = await Trend.Select_Stats();
+        JW_Utils.Set_Text(no_entries, trend_stats.count);
+
+        let date = new Date(trend_stats.first_time);
+        JW_Utils.Set_Text(first_time, date.toLocaleString());
+
+        date = new Date(trend_stats.last_time);
+        JW_Utils.Set_Text(last_time, date.toLocaleString());
+      }
+    </script>
+  </head>
+
+  <body>
+    <a href="queries.html">
+      <header>Search Queries</header>
+      <section>
+        These represent the various search terms that are checked on the job site and
+        each query is used to garner job numbers for a particular technology.
+      </section>
+      <hr>
+      <section>
+        <div># of Queries: <span id="no_queries" class="wait"></span></div>
+      </section>
+    </a>
+
+    <a href="trends.html">
+      <header>Trend Data</header>
+      <section>
+        These are the individual job counts for every time a Query is executed.
+      </section>
+      <hr>
+      <section class="spaced">
+        <div># of Trend Entries: <span id="no_entries" class="wait"></span></div>
+        <div>Time of First Entry:<br> <span id="first_time" class="wait"></span></div>
+        <div>Time of Latest Entry:<br> <span id="last_time" class="wait"></span></div>
+      </section>
+    </a>
+  </body>
+</html>

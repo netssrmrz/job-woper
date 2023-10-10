@@ -1,0 +1,145 @@
+<html>
+  <head>
+    <link type="text/css" rel="stylesheet" href="/style/main.css" />
+    <link type="text/css" rel="stylesheet" href="/style/Table_Buddy.css" />
+    <link type="text/css" rel="stylesheet" href="/style/Paging_Bar.css" />
+    <link type="text/css" rel="stylesheet" href="/style/Sort_Buddy.css" />
+    <link type="text/css" rel="stylesheet" href="/style/MB_Dlg_Btn.css" />
+    <link type="text/css" rel="stylesheet" href="/style/Filter_Buddy.css" />
+    <style>
+    </style>
+    <script type="module">
+      import JW_Utils from "/lib/JW_Utils.js";
+      import Utils from "/lib/Utils.js";
+      import Table_Buddy from "/node_modules/table-buddy/Table_Buddy.mjs";
+      import Paging_Bar from "/node_modules/table-buddy/Paging_Bar.mjs";
+      import Datasource from "/node_modules/table-buddy/Datasource.mjs";
+      import MB_Dlg_Btn from "/node_modules/menu-buddy/MB_Dlg_Btn.mjs";
+      import Filter_Buddy from "/node_modules/filter-buddy/Filter_Buddy.mjs";
+      import Sort_Buddy from "/component/Sort_Buddy.mjs";
+
+      class Trends_Datasource extends Datasource.Client_Paging 
+      {
+        Get_Columns()
+        {
+          const sel_col = new Table_Buddy.Column_Select("id");
+          return [
+            sel_col,
+            {title_fn: () => Render_Head_Menu_Cell(sel_col), field_fn: Render_Menu_Cell}, 
+            {title: "Id.", field_name: "id"}, 
+            {title: "Time", field_name: "datetime", renderAs: "datetime"}, 
+            {title: "# Jobs", field_name: "count"}, 
+            {title: "Query", field_fn: (t) => Trend.Get_Query_Title(t.query_id)}, 
+          ];
+        }
+
+        Update_Data = (f, s) => Update_Data(this, f, s)
+      }
+
+      main();
+      async function main()
+      {
+        await JW_Utils.Import_API();
+
+        window.parent.jw_header.subtitle = "Trends";
+        trends_sort.Load();
+        trends.datasource = new Trends_Datasource();
+
+        const filters =
+        [
+          {
+            id: "WHERE_TIME",
+            label: "Time",
+            filter_class: Filter_Buddy.Date_Time, 
+          },
+          {
+            id: "WHERE_QUERY",
+            label: "Query",
+            filter_class: Filter_Buddy.Select, 
+            options: await Query.Select_As_Options()
+          },
+          {
+            id: "WHERE_JOBS",
+            label: "# Jobs",
+            filter_class: Filter_Buddy.Number, 
+          },
+          {
+            id: "WHERE_ID",
+            label: "Id.",
+            filter_class: Filter_Buddy.Text, 
+          }
+        ];
+
+        trends_filter.addEventListener("search", On_Search);
+        trends_filter.filters = filters;
+      }
+
+      async function Update_Data(ds, filter_by, sort_by)
+      {
+        trends.classList.add("is-busy");
+        ds.data = await Trend.Select_All(filter_by, sort_by);
+        trends.classList.remove("is-busy");
+      }
+
+      function Render_Head_Menu_Cell(sel_col)
+      {
+        const menu_options =
+        [
+          { id: 1, title: "xNew"},
+          { id: 2, title: "Delete Selected", click: e => Delete_Selected(e, sel_col)},
+        ];
+        const menu_elem = new MB_Dlg_Btn();
+        menu_elem.options_flat = menu_options;
+
+        return menu_elem;
+      }
+
+      function Render_Menu_Cell(query, row_idx, cell_elem)
+      {
+        const menu_options =
+        [
+          { id: 1, title: "xView", },
+          { id: 2, title: "xEdit", },
+          { id: 3, title: "xDelete", },
+        ];
+        const menu_elem = new MB_Dlg_Btn();
+        menu_elem.options_flat = menu_options;
+
+        return menu_elem;
+      }
+
+      function On_Search(event)
+      {
+        trends.where = event.detail;
+      }
+
+      async function Delete_Selected(menu_elem, sel_col)
+      {
+        const confirmed = window.confirm("Are you sure?");
+        if (confirmed)
+        {
+          const is_deleted = await Trend.Delete_By_Ids(sel_col.selected_ids);
+          if (is_deleted)
+          {
+            trends.Update_Render();
+          }
+          else
+          {
+            Utils.Handle_Errors(Trend);
+          }
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <filter-buddy id="trends_filter" view="min"></filter-buddy>
+    <sort-buddy id="trends_sort" table-id="trends">
+      <li sort-code="ORDERBY_DATETIME">Time</li>
+      <li sort-code="ORDERBY_COUNT"># Jobs</li>
+      <li sort-code="ORDERBY_QUERY">Query</li>
+    </sort-buddy>
+    <paging-bar id="trends_paging" table-id="trends"></paging-bar>
+    <table-buddy id="trends" page-size="10"></table-buddy>
+  </body>
+</html>

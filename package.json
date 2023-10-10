@@ -1,0 +1,22 @@
+{
+  "type": "module",
+  "name": "job-woper",
+  "description": "",
+  "scripts": {
+    "serve": "firebase emulators:start",
+    "shell": "firebase functions:shell",
+    "start": "firebase serve --port 80",
+    "deploy": "firebase deploy",
+    "test": "mocha"
+  },
+  "engines": {
+    "node": "16"
+  },
+  "dependencies": {
+    "git-filter-repo": "^0.0.30"
+  },
+  "devDependencies": {
+    "mocha": "^10.0.0"
+  },
+  "private": true
+}

@@ -1,0 +1,145 @@
+filter-buddy
+{
+  display: flex;
+  font-size: 12px;
+  margin: 0px 26px 10px 26px;
+  align-items: center;
+  gap: 10px;
+}
+
+filter-buddy button
+{
+  background-color: #440;
+  color: #ff0;
+  font-family: hyperspace-bold;
+  font-size: 12px;
+  padding: 6px 8px;
+  border: none;
+  letter-spacing: 2px;
+}
+filter-buddy button:disabled
+{
+  background-color: #222;
+  color: #555;
+}
+
+filter-buddy .fb_filter_btn::before
+{
+  content: "Filter";
+}
+filter-buddy .fb_filter_btn_label
+{
+  display: none;
+}
+
+filter-buddy [cid=min_view_div]
+{
+  display: flex;
+  align-items: center;
+}
+
+filter-buddy [cid=min_summ_div]
+{
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+filter-buddy .fb_summ
+{
+  margin: 0 10px 0 0;
+  padding: 0 0 0 10px;
+  border: 1px solid #444;
+}
+filter-buddy .fb_del_btn
+{
+  margin: 0 0 0 10px;
+  padding: 5px 8px;
+}
+
+filter-buddy [cid=min_search_btn]
+{
+  padding: 0;
+  height: 26px;
+  font-size: 0;
+}
+filter-buddy [cid=min_search_btn]::before
+{
+  content: url(/images/filter-refresh.svg);
+}
+filter-buddy .fb_filter_btn
+{
+  margin: 0 10px 0 0;
+}
+filter-buddy .search_btn_label
+{
+  display: none;
+}
+
+filter-buddy dialog
+{
+  background-color: #000;
+  padding: 10px;
+  border: 1px solid #0f0;
+}
+filter-buddy dialog::backdrop
+{
+  background-color: #000;
+  opacity: 0.7;
+}
+filter-buddy .dialog_header
+{
+  font-size: 16px;
+  color: #0f0;
+  padding: 0 8px 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+filter-buddy .close_btn
+{
+  padding: 0;
+  width: 26px;
+  height: 26px;
+}
+
+filter-buddy .filter_list
+{
+  margin: 10px 0 10px 0;
+  padding: 10px;
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+filter-buddy .filter_item
+{
+  display: flex;
+}
+filter-buddy .filter_item label
+{
+  width: 100px;
+  display: inline-block;
+  text-align: right;
+  padding: 0 10px 0 0;
+}
+filter-buddy input, select
+{
+  border: none;
+  background-color: #440;
+  color: #ff0;
+  padding: 5px;
+  font-family: monospace;
+  font-size: 12px;
+}
+filter-buddy input:focus-visible, select:focus-visible
+{
+  outline: 1px solid #ff0;
+}
+
+filter-buddy .dialog_footer
+{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

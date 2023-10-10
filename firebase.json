@@ -1,0 +1,17 @@
+{
+  "database": 
+  {
+    "rules": "database.rules.json"
+  },
+  "hosting": 
+  {
+    "xrewrites": 
+    [ 
+      {
+        "source": "/trends",
+        "destination": "/admin/trends.html"
+      } 
+    ],
+    "public": "public"
+  }
+}

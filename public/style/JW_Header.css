@@ -1,0 +1,27 @@
+jw-header
+{
+  font-size: 30px;
+  font-family: hyperspace;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 26px;
+}
+
+jw-header .logo
+{
+  width: 40px;
+}
+
+jw-header > div
+{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+jw-header [cid=menu_btn]
+{
+  width: 32px;
+  height: 32px;
+}

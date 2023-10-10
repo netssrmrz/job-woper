@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <link type="text/css" rel="stylesheet" href="/style/main.css" />
+    <link type="text/css" rel="stylesheet" href="/style/JW_Header.css" />
+    <link type="text/css" rel="stylesheet" href="/style/MB_Dlg_Btn.css" />
+    <style>
+      body
+      {
+        display: flex;
+        flex-direction: column;
+      }
+      iframe
+      {
+        border: none;
+        width: 100%;
+        flex-grow: 1;
+      }
+    </style>
+    <script type="module">
+      //import Utils from "/lib/Utils.js";
+      //import JW_Utils from "/lib/JW_Utils.js";
+      import JW_Header from "/component/JW_Header.mjs";
+
+      //main();
+      async function main()
+      {
+        //console.log("index.main()")
+        //await JW_Utils.Import_API();
+      }
+    </script>
+  </head>
+
+  <body>
+    <jw-header id="jw_header" frame-id="jw_frame"></jw-header>
+    <iframe id="jw_frame" src="/pages/dashboard.html"></iframe>
+  </body>
+</html>

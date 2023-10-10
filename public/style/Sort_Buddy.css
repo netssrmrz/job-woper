@@ -1,0 +1,80 @@
+sort-buddy
+{
+  display: flex;
+  font-size: 12px;
+  margin: 0px 26px 10px 26px;
+  align-items: center;
+  gap: 10px;
+}
+
+sort-buddy button
+{
+  background-color: #440;
+  color: #ff0;
+  font-family: hyperspace-bold;
+  font-size: 12px;
+  padding: 6px 8px;
+  border: none;
+  letter-spacing: 2px;
+}
+sort-buddy button:disabled
+{
+  background-color: #222;
+  color: #555;
+}
+
+sort-buddy .sort-list
+{
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 10px;
+}
+sort-buddy .sort-item
+{
+  margin: 0;
+  padding: 0 0 0 10px;
+  border: 1px solid #444;
+}
+
+sort-buddy .remove-btn
+{
+  margin: 0 0 0 10px;
+  padding: 5px 8px;
+}
+
+sort-buddy dialog
+{
+  background-color: #000;
+  color: #0f0;
+}
+sort-buddy dialog::backdrop
+{
+  background-color: #000b;
+}
+
+sort-buddy .dialog-header
+{
+  background: #040;
+  text-shadow: none;
+  font-size: 14px;
+  padding: 0 0 0 10px;
+}
+
+sort-buddy .field-list
+{
+  margin: 0;
+  padding: 10px 0 0 10px;
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+sort-buddy .field-item
+{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+  xwidth="360px" xheight="26px" 
+  viewBox="0 0 36 26">
+
+<rect x="00" y="00" rx="3" ry="3" width="6" height="6" fill="#f00">
+  <animate attributeName="opacity" values="0;1" keyTimes="0;1" dur="0.25s" begin="-0.9s" repeatCount="indefinite"></animate>
+</rect>
+<rect x="10" y="00" rx="3" ry="3" width="6" height="6" fill="#ff0">
+  <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="0.15s" begin="-0.8s" repeatCount="indefinite"></animate>
+</rect>
+<rect x="20" y="00" rx="3" ry="3" width="6" height="6" fill="#ff0">
+  <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="0.19s" begin="-0.75s" repeatCount="indefinite"></animate>
+</rect>
+<rect x="30" y="00" rx="3" ry="3" width="6" height="6" fill="#f00">
+  <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="0.20s" begin="-0.6s" repeatCount="indefinite"></animate>
+</rect>
+
+<rect x="00" y="10" rx="3" ry="3" width="6" height="6" fill="#f00">
+  <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="0.30s" begin="-0.5s" repeatCount="indefinite"></animate>
+</rect>
+<rect x="10" y="10" rx="3" ry="3" width="6" height="6" fill="#f00">
+  <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="0.10s" begin="-0.5s" repeatCount="indefinite"></animate>
+</rect>
+<rect x="20" y="10" rx="3" ry="3" width="6" height="6" fill="#f00">
+  <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="0.33s" begin="-0.4s" repeatCount="indefinite"></animate>
+</rect>
+<rect x="30" y="10" rx="3" ry="3" width="6" height="6" fill="#ff0">
+  <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="0.40s" begin="-0.3s" repeatCount="indefinite"></animate>
+</rect>
+
+<rect x="00" y="20" rx="3" ry="3" width="6" height="6" fill="#ff0">
+  <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="0.11s" begin="-0.2s" repeatCount="indefinite"></animate>
+</rect>
+<rect x="10" y="20" rx="3" ry="3" width="6" height="6" fill="#ff0">
+  <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="0.50s" begin="-0.1s" repeatCount="indefinite"></animate>
+</rect>
+<rect x="20" y="20" rx="3" ry="3" width="6" height="6" fill="#ff0">
+  <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="0.22s" begin="-0.2s" repeatCount="indefinite"></animate>
+</rect>
+<rect x="30" y="20" rx="3" ry="3" width="6" height="6" fill="#f00">
+  <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="0.23s" begin="-0.7s" repeatCount="indefinite"></animate>
+</rect>
+
+</svg>

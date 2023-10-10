@@ -1,0 +1,62 @@
+paging-bar
+{
+  display: flex;
+  font-size: 12px;
+  margin: 0 26px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+paging-bar #btn_panel
+{
+  display: inline-block;
+}
+
+paging-bar #page_size_sel
+{
+  background-color: #440;
+  color: #ff0;
+  font-family: hyperspace-bold;
+  padding: 2px 2px 2px 2px;
+  font-size: 14px;
+  border: none;
+  text-shadow: 1px 0 #ff0;
+  letter-spacing: 2px;
+}
+
+paging-bar button
+{
+  background-color: #440;
+  color: #ff0;
+  font-family: hyperspace-bold;
+  padding: 6px 8px;
+  font-size: 14px;
+  border: none;
+  letter-spacing: 2px;
+}
+
+paging-bar #first_btn::before
+{
+  content: url(/images/page_first.svg);
+}
+
+paging-bar #prev_btn::before
+{
+  content: url(/images/page_prev.svg);
+}
+
+paging-bar #next_btn::before
+{
+  content: url(/images/page_next.svg);
+}
+
+paging-bar #last_btn::before
+{
+  content: url(/images/page_last.svg);
+}
+
+paging-bar .btn-label
+{
+  display: none;
+}

@@ -1,0 +1,58 @@
+mb-dlg-btn [cid=menu_btn]
+{
+  padding: 0 2px;
+}
+mb-dlg-btn [cid=menu_btn]::before
+{
+  content: url(/images/menu.svg);
+  display: inline-block;
+  height: 16px;
+  width: 16px;
+}
+mb-dlg-btn [cid=menu_btn] span
+{
+  display: none;
+}
+
+mb-dlg-btn dialog
+{
+  background-color: #000;
+  padding: 10px;
+  border: 1px solid #0f0;
+}
+mb-dlg-btn dialog::backdrop
+{
+  background-color: #000;
+  opacity: 0.7;
+}
+
+mb-hr-menu .mb_menu
+{
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+mb-hr-menu .mb_menu_title
+{
+  font-size: 16px;
+  color: #0f0;
+  padding: 0 8px 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+mb-hr-menu .mb_menu_title::before
+{
+  content: url(../../images/close.svg);
+  background-color: #440;
+}
+mb-hr-menu .mb_option_btn
+{
+  width: 100%;
+  text-align: left;
+}
+mb-hr-menu .mb_option_btn:hover
+{
+  background-color: #ff0;
+  color: #000;
+}
