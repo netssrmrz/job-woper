@@ -68,7 +68,7 @@ class Db_Realtime
   async Select_Objs(from, where, order_by)
   {
     const query_res = await this.Select_Query(from, where, order_by);
-    const objs = Db_Realtime.To_Array(query_res);
+    const objs = Db_Realtime.To_Array(query_res, where);
       
     return objs;
   }
@@ -107,7 +107,7 @@ class Db_Realtime
   {
   }
 
-  async Select_Objs_By_Ids(ids, table_name, class_type)
+  async Select_Objs_By_Ids(from, ids)
   {
   }
 
@@ -523,16 +523,27 @@ class Db_Realtime
   {
   }
 
-  static To_Array(query_res)
+  static To_Array(query_res, where)
   {
-    var vals = null;
+    let vals = null;
 
-    query_res.forEach(Row);
-    function Row(r)
+    query_res.forEach(Process_Row);
+    function Process_Row(row_snapshot)
     {
       if (vals == null) vals = new Array();
-      const val = r.val();
-      vals.push(val);
+      const row_data = row_snapshot.val();
+
+      let include = true;
+      if (!Utils.isEmpty(where))
+      {
+        for (const filter of where)
+        {
+          const field_value = row_data[filter.field];
+          if (filter.op == "in") include = include && filter.value.includes(field_value);
+        }
+      }
+  
+      if (include) vals.push(row_data);
     }
   
     return vals;

@@ -38,7 +38,8 @@ const rpc_buddy = new RPC_Buddy
     {name: "Trend.Select_Prev_Val", inject: [db]}, 
     {name: "Trend.Select_Prev_Month_Val", inject: [db]}, 
     {name: "Trend.Select_First", inject: [db]}, 
-    {name: "Trend.Select_Chart_Vals_By_Query", inject: [db]}, 
+    {name: "Trend.Select_Chart_Vals_By_Query_Id", inject: [db]}, 
+    {name: "Trend.Select_Chart_Vals_By_Query_Ids", inject: [db]}, 
     {name: "Trend.Delete_By_Ids", inject: [db], on_auth_fn}, 
     {name: "Trend.Insert_By_Query", inject: [db, Jobs], on_auth_fn}, 
     

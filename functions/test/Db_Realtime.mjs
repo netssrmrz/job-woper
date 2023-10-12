@@ -3,6 +3,7 @@ import firebase from 'firebase-admin';
 import Db_Realtime from "../tb/Db_Realtime.mjs"
 import config from './config.mjs';
 import queries from './data/queries.mjs';
+import trends from './data/trends.mjs';
 
 let db = null, fb_app = null;
 
@@ -19,6 +20,7 @@ function Db_Realtime_Tests()
   it('Select_Value_By_Id', Select_Value_By_Id);
   it('Select_Query', Select_Query);
   it('Order_By', Order_By);
+  it('To_Array', To_Array);
 
   after(Cleanup);
 }
@@ -66,18 +68,27 @@ async function Select_Obj_By_Id()
 
 async function Select_Objs() 
 {
-  let objs = await db.Select_Objs("query");
+  let actual = await db.Select_Objs("query");
   let msg = 'should return objects';
-  assert.equal(objs != null, true, msg);
+  assert.equal(actual != null, true, msg);
   msg = 'should return multiple objects';
-  assert.equal(objs.length > 0, true, msg);
+  assert.equal(actual.length > 0, true, msg);
 
-  objs = await db.Select_Objs("query", null, "title");
-  assert.equal(objs != null, true);
-  assert.equal(objs.length > 0, true);
-  assert.equal(objs[0].title, "AWS");
-  assert.equal(objs[1].title, "Android");
-  assert.equal(objs[2].title, "Angular");
+  actual = await db.Select_Objs("query", null, "title");
+  assert.equal(actual != null, true);
+  assert.equal(actual.length > 0, true);
+  assert.equal(actual[0].title, "AWS");
+  assert.equal(actual[1].title, "Android");
+  assert.equal(actual[2].title, "Angular");
+
+  const where = 
+  [
+    {field: "query_id", op: "in", value: ["-KpPWAFGBhe6CxLYn22r", "-KpXaq_9Y_gdfEalxOmu"]}
+  ];
+  actual = await db.Select_Objs("trend", where);
+  assert.ok(where[0].value.includes(actual[0].query_id));
+  assert.ok(where[0].value.includes(actual[1].query_id));
+  assert.ok(where[0].value.includes(actual[2].query_id));
 }
 
 async function Select_Value_By_Id() 
@@ -195,4 +206,23 @@ function Order_By()
   //assert.equal(actual[1].title, "bbb", msg);
   //assert.equal(actual[2].title, "aaa", msg);
   //assert.equal(actual[3].title, "bbb", msg);
+}
+
+function To_Array()
+{
+  const where = 
+  [
+    {field: "query_id", op: "in", value: ["-KpPWAFGBhe6CxLYn22r", "-KpXaq_9Y_gdfEalxOmu"]}
+  ];
+  let actual = Db_Realtime.To_Array(trends, where);
+  let msg = "length should match";
+  assert.equal(actual.length, 8639, msg);
+  msg = "query id should be in filter";
+  assert.ok(where[0].value.includes(actual[0].query_id), msg);
+  assert.ok(where[0].value.includes(actual[1].query_id), msg);
+  assert.ok(where[0].value.includes(actual[2].query_id), msg);
+
+  actual = Db_Realtime.To_Array(trends);
+  msg = "length should match";
+  assert.equal(actual.length, 101179, msg);
 }

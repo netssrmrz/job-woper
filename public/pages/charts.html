@@ -308,7 +308,7 @@
     import JW_Utils from "/lib/JW_Utils.js";
     import Utils from "/lib/Utils.js";
 
-    let db, chart_data;
+    let db, chart_data, query_ids = [];
 
     // Events =====================================================================================
 
@@ -365,7 +365,8 @@
 
       if (this.checked)
       {
-        Draw_Chart_By_Query_Id(db, this.query.id, false, Is_Relative_Chart());
+        query_ids.push(this.query.id);
+        Draw_Chart_By_Query_Ids(db, query_ids, false, Is_Relative_Chart());
       }
       else if (Charts_Displayed(chart_data) > 1)
       {
@@ -374,7 +375,11 @@
           Set_Absolute_Chart();
         }
         Hide_Chart(this.query, Is_Relative_Chart());
+
+        const idx = query_ids.indexOf(this.query.id);
+        query_ids.splice(idx, 1);
       }
+      // if only 1 chart visible then keep chart visible
       else
       {
         this.checked = true;
@@ -393,7 +398,8 @@
       JW_Utils.Hide(stats_elem);
       JW_Utils.Show(curve_chart);
 
-      Draw_Chart_By_Query_Id(db, this.query.id, true, false);
+      query_ids = [this.query.id];
+      Draw_Chart_By_Query_Ids(db, query_ids, true, false);
     }
 
     function On_Relative_Click()
@@ -460,24 +466,28 @@
       }
     }
 
-    async function Draw_Chart_By_Query_Id(db, id, single_query, is_relative)
+    async function Draw_Chart_By_Query_Ids(db, ids, single_query, is_relative)
     {
       document.getElementById("wait_dlg").style.display = "flex";
-      const query = await Query.Select_By_Id(db, id);
-      const data_vals = await Trend.Select_Chart_Vals_By_Query(db, query);
+      const data_vals = await Trend.Select_Chart_Vals_By_Query_Ids(db, ids);
       if (Utils.isEmpty(data_vals))
         document.getElementById("no_data").show();
       else
       {
+        // convert unix times to date objects
         for (const data_val of data_vals)
         {
-          data_val[0] = new Date(data_val[0]);
+          if (typeof data_val[0] == "number")
+          {
+            data_val[0] = new Date(data_val[0]);
+          }
         }
 
-        if (chart_data == null || single_query)
+        /*if (chart_data == null || single_query)
           chart_data = Copy_Data(data_vals);
         else
-          Merge_Data(chart_data, data_vals);
+          Merge_Data(chart_data, data_vals);*/
+        chart_data = data_vals;
 
         Draw_Chart(chart_data, is_relative);
       }
@@ -587,23 +597,28 @@
 
     function To_Relative_Data(chart_data)
     {
-      var row, col, rel_data = [], row_data, row_tot;
+      const title_row = chart_data[0];
+      const rel_data = [title_row];
 
-      rel_data.push(chart_data[0]);
-      for (row = 1; row < chart_data.length; row++)
+      for (const chart_row of chart_data.slice(1))
       {
-        row_data = New_Filled_Row(chart_data, row);
-        row_tot = Calc_Row_Total(row_data);
-        for (col = 1; col < row_data.length; col++)
+        const date_val = chart_row[0];
+        const rel_row = [date_val];
+
+        const chart_vals = chart_row.slice(1);
+        const missing_data = chart_vals.includes(null);
+
+        const row_tot = chart_vals.reduce((p, c) => c?p+c:p, 0);
+        for (const chart_val of chart_vals)
         {
-          if (row_data[col] != null)
+          let rel_val = null;
+          if (!missing_data)
           {
-            row_data[col] = row_data[col] / row_tot * 100;
-            if (row_data[col] == 100)
-              row_data[col] = null;
+            rel_val = chart_val / row_tot * 100;
           }
+          rel_row.push(rel_val);
         }
-        rel_data.push(row_data);
+        rel_data.push(rel_row);
       }
 
       return rel_data;
@@ -676,7 +691,11 @@
       {
         res = [];
         for (i = 0; i < data.length; i++)
-          res.push(data[i].slice());
+        {
+          const row_data = data[i];
+          const row_data_copy = row_data.slice();
+          res.push(row_data_copy);
+        }
       }
       return res;
     }
@@ -687,26 +706,27 @@
 
       if (dest && src)
       {
-        Add_Column(dest, src[0][1]);
+        const src_title = src[0][1];
+        Add_Column(dest, src_title);
         for (i = 1; i < src.length; i++)
         {
-          const src_val = src[i];
-          const src_date = src_val[0];
+          const src_row = src[i];
+          const src_date = src_row[0];
           row = Find_Row(dest, src_date, start_i);
           if (row)
           {
             start_i = row.index;
             if (row.action == "add")
             {
-              Add_Row(dest, src_val);
+              Add_Row(dest, src_row);
             }
             else if (row.action == "insert")
             {
-              Insert_Row(dest, row.index, src_val);
+              Insert_Row(dest, row.index, src_row);
             }
             else if (row.action == "set")
             {
-              Set_Row(dest, row.index, src_val);
+              Set_Row(dest, row.index, src_row);
             }
           }
         }
@@ -715,12 +735,11 @@
 
     function Add_Column(dst, name)
     {
-      var i, title_row;
-
-      for (i = 0; i < dst.length; i++)
+      for (let i = 0; i < dst.length; i++)
         dst[i].push(null);
-      title_row = dst[0];
-      title_row[title_row.length - 1] = name;
+      const title_row = dst[0];
+      const last_cell_index = title_row.length - 1;
+      title_row[last_cell_index] = name;
     }
 
     function Find_Row(data, val, start_i)

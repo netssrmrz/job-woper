@@ -90,6 +90,13 @@ class Trend
     return db.Select_Objs(Trend.table, where);
   }
 
+  static async Select_By_Query_Ids(db, query_ids)
+  {
+    // should use cache
+    const where = [{ field:"query_id", op:"in", value:query_ids }];
+    return db.Select_Objs(Trend.table, where);
+  }
+
   static async Select_Last_Val(db, query_id)
   {
     var vals, val = 0;
@@ -162,36 +169,64 @@ class Trend
     return res;
   }
 
-  static async Select_Chart_Vals_By_Query(db, query)
+  static async Select_Chart_Vals_By_Query_Id(db, query_id)
   {
     let vals = null;
     const span_count = 100;
 
-    const items = await Trend.Select_By_Query_Id(db, query.id);
+    const items = await Trend.Select_By_Query_Id(db, query_id);
     if (!Utils.isEmpty(items))
     {
       const groups = Utils.Group_By_Ceil_Span(items, "datetime", span_count);
-      vals = Trend.To_Chart_Vals(groups, query.title);
+      vals = await Trend.To_Chart_Vals(db, groups, [query_id]);
     }
 
     return vals;
   }
 
-  static To_Chart_Vals(groups, query_title)
+  static async Select_Chart_Vals_By_Query_Ids(db, query_ids)
+  {
+    let vals = null;
+    const span_count = 100;
+
+    const items = await Trend.Select_By_Query_Ids(db, query_ids);
+    if (!Utils.isEmpty(items))
+    {
+      const groups = Utils.Group_By_Ceil_Span(items, "datetime", span_count);
+      vals = await Trend.To_Chart_Vals(db, groups, query_ids);
+    }
+
+    return vals;
+  }
+
+  static async To_Chart_Vals(db, groups, query_ids)
   {
     let vals = null;
 
-    if (!Utils.isEmpty(groups))
+    if (!Utils.isEmpty(groups) && !Utils.isEmpty(query_ids))
     {
-      vals = [['Date', query_title]];
+      vals = [['Date']];
+      for (const query_id of query_ids)
+      {
+        const query_title = await Trend.Get_Query_Title(db, query_id);
+        vals[0].push(query_title);
+      }
+
       for (const group_id in groups)
       {
-        const items = groups[group_id];
-        const item_count = items.length;
-        const item_total = items.reduce((total, item) => total + item.count, 0);
-        const item_avg = item_total / item_count;
-
-        const val = [Math.trunc(Number(group_id)), item_avg];
+        const val = [Math.trunc(Number(group_id))];
+        for (const query_id of query_ids)
+        {
+          let item_avg = null;
+          const items = groups[group_id].filter(item => item.query_id == query_id);
+          if (!Utils.isEmpty(items))
+          {
+            const item_count = items.length;
+            const item_total = items.reduce((total, item) => total + item.count, 0);
+            item_avg = item_total / item_count;
+          }
+          val.push(item_avg);
+        }
         vals.push(val);
       }
     }
