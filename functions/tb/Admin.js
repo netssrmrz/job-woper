@@ -39,7 +39,7 @@ class Admin
 
       if (token)
       {
-        res = !Utils.isEmpty(token.uid);
+        res = token.uid == "SCUdO8l5nRgseWcCmcEHpgQD5Kq1";
       }
     }
 
