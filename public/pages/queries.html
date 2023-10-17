@@ -57,7 +57,7 @@
         window.parent.jw_header.subtitle = "Queries";
         const filters =
         [
-        {
+          {
             id: "WHERE_ID",
             label: "Id.",
             filter_class: Filter_Buddy.Text, 
@@ -114,7 +114,7 @@
         [
           { id: 1, title: "New", click: On_Click_New},
           { id: 2, title: "Insert All Query Trends", click: On_Click_Update_All},
-          { id: 3, title: "xDelete Selected"},
+          //{ id: 3, title: "xDelete Selected"},
         ];
         const menu_elem = new MB_Dlg_Btn();
         menu_elem.options_flat = menu_options;
@@ -126,9 +126,9 @@
       {
         const menu_options =
         [
-          { id: 1, title: "xView", },
-          { id: 2, title: "xView Trend Data", },
-          { id: 3, title: "xView Chart", },
+          //{ id: 1, title: "xView", },
+          //{ id: 2, title: "xView Trend Data", },
+          //{ id: 3, title: "xView Chart", },
           { id: 4, title: "View Jobs", click: () => On_Click_View_Jobs(query)},
           { id: 5, title: "Add Query", click: () => On_Click_Add(query)},
           { id: 5, title: "Edit", click: () => On_Click_Edit(query)},

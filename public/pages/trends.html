@@ -25,7 +25,8 @@
           const sel_col = new Table_Buddy.Column_Select("id");
           return [
             sel_col,
-            {title_fn: () => Render_Head_Menu_Cell(sel_col), field_fn: Render_Menu_Cell}, 
+            //{title_fn: () => Render_Head_Menu_Cell(sel_col), field_fn: Render_Menu_Cell}, 
+            {title_fn: () => Render_Head_Menu_Cell(sel_col)}, 
             {title: "Id.", field_name: "id"}, 
             {title: "Time", field_name: "datetime", renderAs: "datetime"}, 
             {title: "# Jobs", field_name: "count"}, 
@@ -85,7 +86,7 @@
       {
         const menu_options =
         [
-          { id: 1, title: "xNew"},
+          //{ id: 1, title: "xNew"},
           { id: 2, title: "Delete Selected", click: e => Delete_Selected(e, sel_col)},
         ];
         const menu_elem = new MB_Dlg_Btn();
