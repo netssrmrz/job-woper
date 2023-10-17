@@ -81,12 +81,6 @@ class JW_Header extends HTMLElement
 
   Render()
   {
-    /*<ins class="adsbygoogle"
-      style="display:block"
-      data-ad-client="ca-pub-7012708134579766"
-      data-ad-slot="2737748559"
-      data-ad-format="auto"
-      data-full-width-responsive="true"></ins>*/
     this.innerHTML = `
       <div>
         <mb-dlg-btn cid="menu_elem"></mb-dlg-btn>
