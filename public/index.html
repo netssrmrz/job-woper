@@ -36,6 +36,15 @@
         color: #0f0;
         background-color: #0f0;
       }
+      canvas
+      {
+        position: absolute;
+        z-index: -1;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
 
       .wait::before
       {
@@ -45,15 +54,48 @@
       {
         display: none;
       }
+      .shake
+      {
+        animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+      }
+
+      #headings
+      {
+        text-align: center;
+        transform: translate3d(0, 0, 0);
+      }
+
+      @keyframes shake 
+      {
+        10%, 90% 
+        {
+          transform: translate3d(-1px, 1px, 0);
+        }
+        
+        20%, 80% 
+        {
+          transform: translate3d(2px, -2px, 0);
+        }
+
+        30%, 50%, 70% 
+        {
+          transform: translate3d(-4px, -4px, 0);
+        }
+
+        40%, 60% 
+        {
+          transform: translate3d(4px, 4px, 0);
+        }
+      }
     </style>
     <script type="module">
+      import Utils from "/lib/Utils.js";
       import JW_Utils from "/lib/JW_Utils.js";
       import '/__/firebase/9.4.0/firebase-app-compat.js';
       import '/__/firebase/9.4.0/firebase-auth-compat.js';
       import '/__/firebase/init.js?useEmulator=true';
 
       main();
-
       async function main()
       {
         //console.log("index.main()")
@@ -72,6 +114,144 @@
           sign_in_btn.addEventListener("click", On_Click_Sign_In);
 
           guest_btn.addEventListener("click", On_Click_Guest);
+
+          document.body.addEventListener('animationend', On_Animation_End);
+          requestAnimationFrame(Start_Anim);
+        }
+      }
+
+      function Start_Anim(start_time)
+      {
+        canvas.width = document.body.clientWidth;
+        canvas.height = document.body.clientHeight;
+        const ctx = canvas.getContext("2d");
+
+        let prev_time = start_time;
+        const objs = [];
+        objs.push(New_Missile(start_time));
+
+        requestAnimationFrame(Process_Anim);
+        function Process_Anim(now_time)
+        {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);          
+          const elapsed_time = now_time - prev_time;
+          if (elapsed_time > 1000 && objs.length < 10)
+          {
+            prev_time = now_time;
+            objs.push(New_Missile(now_time));
+          }
+
+          if (!Utils.isEmpty(objs))
+          {
+            for (const obj of objs)
+            {
+              ctx.save();
+              ctx.translate(obj.x, obj.y);
+              obj.Draw(ctx);
+              ctx.restore();
+            }
+
+            for (const obj of objs)
+            {
+              obj.Process(now_time, objs);
+            }
+          }
+
+          requestAnimationFrame(Process_Anim);
+        }
+      }
+
+      function New_Explosion(now_time, missile)
+      {
+        const x = missile.x + Math.cos(missile.end_angle) * missile.radius * missile.scale_x;
+        const y = missile.y + Math.sin(missile.end_angle) * missile.radius * missile.scale_y;
+
+        const explosion =
+        {
+          Draw: Draw_Explosion,
+          Process: Process_Explosion,
+          x, y,
+          start_radius: 0, curr_radius: 0, end_radius: 50,
+          start_time: now_time, end_time: now_time + 500
+        };
+        return explosion;
+      }
+
+      function Draw_Explosion(ctx)
+      {
+        ctx.beginPath();
+        ctx.fillStyle = "#fff";
+        ctx.ellipse(0, 0, this.curr_radius, this.curr_radius, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function Process_Explosion(now_time, objs)
+      {
+        const total_time = this.end_time - this.start_time;
+        const total_radius = this.end_radius - this.start_radius;
+        const elapsed_time = now_time - this.start_time;
+
+        this.curr_radius = elapsed_time * total_radius / total_time + this.start_radius;
+        
+        if (this.curr_radius > this.end_radius)
+        {
+          const i = objs.indexOf(this);
+          objs.splice(i, 1);
+        }
+      }
+
+      function New_Missile(now_time)
+      {
+        const start_angle = Utils.Random(0, Math.PI*2);
+        const curr_angle = start_angle;
+        const end_angle = start_angle + Utils.Random(Math.PI*0.5, Math.PI*0.75);
+        const counterclockwise = false;
+
+        const missile =
+        {
+          Draw: Draw_Missile,
+          Process: Process_Missile,
+          x: Utils.Random(0, canvas.width*0.8), y: Utils.Random(0, canvas.height*0.8),
+          //x: canvas.width*0.5, y: canvas.height*0.5,
+          scale_x: Math.random() > 0.5 ? 1 : -1, scale_y: Math.random() > 0.5 ? 1 : -1,
+          //scale_x: -1, scale_y: 1,
+          radius: Utils.Random(100, 500), counterclockwise,
+          //radius: 100, counterclockwise,
+          start_angle, curr_angle, end_angle,
+          start_time: now_time, end_time: now_time + Utils.Random(4000, 10000)
+          //start_time: now_time, end_time: now_time + 2000
+        };
+        return missile;
+      }
+
+      function Draw_Missile(ctx)
+      {
+        ctx.save();
+        ctx.scale(this.scale_x, this.scale_y);
+        ctx.beginPath();
+        ctx.strokeStyle = "#f00";
+        ctx.arc(0, 0, this.radius, this.start_angle, this.curr_angle, this.counterclockwise);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function Process_Missile(now_time, objs)
+      {
+        const missile_total_time = this.end_time - this.start_time;
+        const missile_total_angle = this.end_angle - this.start_angle;
+        const missile_elapsed_time = now_time - this.start_time;
+
+        this.curr_angle = 
+          missile_elapsed_time * missile_total_angle / missile_total_time 
+          + this.start_angle;
+        
+        if (this.curr_angle > this.end_angle)
+        {
+          const i = objs.indexOf(this);
+          objs.splice(i, 1);
+
+          objs.push(New_Explosion(now_time, this));
+          headings.classList.add("shake");
         }
       }
 
@@ -92,6 +272,11 @@
         return user;
       }
 
+      function On_Animation_End()
+      {
+        headings.classList.remove("shake");
+      }
+
       function On_Click_Sign_In()
       {
         const provider = new firebase.auth.GoogleAuthProvider();
@@ -106,9 +291,12 @@
   </head>
 
   <body>
-    <h1>Job Woper</h1>
-    <h4>(War Operation Plan Employment Response)</h4>
-    <h3>Tracking the fight for I.T. world domination</h3>
+    <canvas id="canvas"></canvas>
+    <div id="headings">
+      <h1>Job Woper</h1>
+      <h4>(War Operation Plan Employment Response)</h4>
+      <h3>Tracking the fight for I.T. world domination</h3>
+    </div>
     <button id="guest_btn">
       <span>View as Guest</span>
     </button>

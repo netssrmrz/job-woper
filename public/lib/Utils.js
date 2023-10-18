@@ -756,6 +756,15 @@ class Utils
     return res;
   }
 
+  static Random(from, to)
+  {
+    const r = Math.random();
+    const range = to - from;
+    const res = r * range + from;
+
+    return res;
+  }
+
   static Register_Element(elem_class)
   {
     const comp_class = customElements.get(elem_class.tname);
