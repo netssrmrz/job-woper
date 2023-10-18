@@ -32,7 +32,7 @@ class JW_Utils
       }
       else
       {
-        window.open("/index.html", "_self");
+        window.open("/index.html", "_top");
         //console.error("On_Timeout(): go to login");
       }
     }
