@@ -80,6 +80,7 @@
         query_filter.filters = filters;
         query_sort.Load();
         query_columns.Load();
+        On_Update_Columns();
         queries.datasource = new Queries_Datasource();
 
         count_hdr.addEventListener("click", () => count_dlg.close());

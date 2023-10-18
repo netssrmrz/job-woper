@@ -6,17 +6,23 @@
     <link type="text/css" rel="stylesheet" href="/style/Sort_Buddy.css" />
     <link type="text/css" rel="stylesheet" href="/style/MB_Dlg_Btn.css" />
     <link type="text/css" rel="stylesheet" href="/style/Filter_Buddy.css" />
+    <link type="text/css" rel="stylesheet" href="/style/Form_Buddy.css" />
+    <link type="text/css" rel="stylesheet" href="/style/Select_Columns.css" />
     <style>
     </style>
+
     <script type="module">
-      import JW_Utils from "/lib/JW_Utils.js";
       import Utils from "/lib/Utils.js";
+      import JW_Utils from "/lib/JW_Utils.js";
       import Table_Buddy from "/node_modules/table-buddy/Table_Buddy.mjs";
-      import Paging_Bar from "/node_modules/table-buddy/Paging_Bar.mjs";
+      import "/node_modules/table-buddy/Paging_Bar.mjs";
       import Datasource from "/node_modules/table-buddy/Datasource.mjs";
       import MB_Dlg_Btn from "/node_modules/menu-buddy/MB_Dlg_Btn.mjs";
       import Filter_Buddy from "/node_modules/filter-buddy/Filter_Buddy.mjs";
-      import Sort_Buddy from "/component/Sort_Buddy.mjs";
+      import "/component/Sort_Buddy.mjs";
+      import "/component/Input_Span.mjs";
+      import "/component/Select_Columns.mjs";
+      import "/component/Form_Buddy.mjs";
 
       class Trends_Datasource extends Datasource.Client_Paging 
       {
@@ -26,11 +32,11 @@
           return [
             sel_col,
             //{title_fn: () => Render_Head_Menu_Cell(sel_col), field_fn: Render_Menu_Cell}, 
-            {title_fn: () => Render_Head_Menu_Cell(sel_col)}, 
-            {title: "Id.", field_name: "id"}, 
-            {title: "Time", field_name: "datetime", renderAs: "datetime"}, 
-            {title: "# Jobs", field_name: "count"}, 
-            {title: "Query", field_fn: (t) => Trend.Get_Query_Title(t.query_id)}, 
+            {id: "menu", title_fn: () => Render_Head_Menu_Cell(sel_col)}, 
+            {id: "id", title: "Id.", field_name: "id"}, 
+            {id: "time", title: "Time", field_name: "datetime", renderAs: "datetime"}, 
+            {id: "jobs", title: "# Jobs", field_name: "count"}, 
+            {id: "query", title: "Query", field_fn: (t) => Trend.Get_Query_Title(t.query_id)}, 
           ];
         }
 
@@ -41,11 +47,9 @@
       async function main()
       {
         await JW_Utils.Import_API();
+        JW_Utils.Update_Access();
 
         window.parent.jw_header.subtitle = "Trends";
-        trends_sort.Load();
-        trends.datasource = new Trends_Datasource();
-
         const filters =
         [
           {
@@ -70,9 +74,14 @@
             filter_class: Filter_Buddy.Text, 
           }
         ];
+        trends_filter.filters = filters;
+        trends_sort.Load();
+        trend_columns.Load();
+        On_Update_Columns();
+        trends.datasource = new Trends_Datasource();
 
         trends_filter.addEventListener("search", On_Search);
-        trends_filter.filters = filters;
+        trend_columns.addEventListener("update", On_Update_Columns);
       }
 
       async function Update_Data(ds, filter_by, sort_by)
@@ -86,6 +95,7 @@
       {
         const menu_options =
         [
+          { id: 1, title: 'Manage Columns', click: () => trend_columns.showModal()},
           //{ id: 1, title: "xNew"},
           { id: 2, title: "Delete Selected", click: e => Delete_Selected(e, sel_col)},
         ];
@@ -107,6 +117,11 @@
         menu_elem.options_flat = menu_options;
 
         return menu_elem;
+      }
+
+      function On_Update_Columns(event)
+      {
+        trends.columns_status = trend_columns.value;
       }
 
       function On_Search(event)
@@ -142,5 +157,12 @@
     </sort-buddy>
     <paging-bar id="trends_paging" table-id="trends"></paging-bar>
     <table-buddy id="trends" page-size="10"></table-buddy>
+
+    <select-columns id="trend_columns" hidden>
+      <li col-id="id">Id.</li>
+      <li col-id="time">Time</li>
+      <li col-id="jobs"># Jobs</li>
+      <li col-id="query">Query</li>
+    </select-columns>
   </body>
 </html>
