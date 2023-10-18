@@ -242,10 +242,10 @@ class Select_Sort extends HTMLElement
     const html = `
       <dialog id="field_list_dlg">
         <div class="dialog-header">
-          Sort Options
           <button id="close_btn" class="btn close-btn">
-            &#x2716;
+            <span class="cancel_btn_label">✕</span>
           </button> 
+          Sort Options
         </div>
         <div class="dialog_body">
           <ul id="field_list" class="field-list"></ul>

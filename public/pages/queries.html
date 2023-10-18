@@ -6,42 +6,35 @@
     <link type="text/css" rel="stylesheet" href="/style/Sort_Buddy.css" />
     <link type="text/css" rel="stylesheet" href="/style/MB_Dlg_Btn.css" />
     <link type="text/css" rel="stylesheet" href="/style/Filter_Buddy.css" />
+    <link type="text/css" rel="stylesheet" href="/style/Form_Buddy.css" />
+    <link type="text/css" rel="stylesheet" href="/style/Select_Columns.css" />
     <style>
-      #query_dlg main
-      {
-        display: grid;
-        grid-template-columns: 1fr 3fr;
-        gap: 10px;
-        padding: 20px 10px;
-      }
-      #query_dlg label
-      {
-        text-align: right;
-      }
     </style>
 
     <script type="module">
       import Utils from "/lib/Utils.js";
       import JW_Utils from "/lib/JW_Utils.js";
-      import Table_Buddy from "/node_modules/table-buddy/Table_Buddy.mjs";
-      import Paging_Bar from "/node_modules/table-buddy/Paging_Bar.mjs";
+      import "/node_modules/table-buddy/Table_Buddy.mjs";
+      import "/node_modules/table-buddy/Paging_Bar.mjs";
       import Datasource from "/node_modules/table-buddy/Datasource.mjs";
       import MB_Dlg_Btn from "/node_modules/menu-buddy/MB_Dlg_Btn.mjs";
       import Filter_Buddy from "/node_modules/filter-buddy/Filter_Buddy.mjs";
-      import Sort_Buddy from "/component/Sort_Buddy.mjs";
-      import Input_Span from "/component/Input_Span.mjs";
+      import "/component/Sort_Buddy.mjs";
+      import "/component/Input_Span.mjs";
+      import "/component/Select_Columns.mjs";
+      import "/component/Form_Buddy.mjs";
 
       class Queries_Datasource extends Datasource.Client_Paging 
       {
         Get_Columns()
         {
           return [
-            {title_fn: Render_Head_Menu_Cell, field_fn: Render_Menu_Cell}, 
-            {title: "Id.", field_name: "id", cell_class: "id"}, 
-            {title: "Title", field_name: "title"}, 
-            {title: "Search Terms", field_name: "terms"}, 
-            {title: "Parent", field_fn: (q) => Trend.Get_Query_Title(q.parent_id)}, 
-            {title: "Order", field_name: "order"}, 
+            {id: "menu", title_fn: Render_Head_Menu_Cell, field_fn: Render_Menu_Cell}, 
+            {id: "id", title: "Id.", field_name: "id", cell_class: "id"}, 
+            {id: "title", title: "Title", field_name: "title"}, 
+            {id: "terms", title: "Search Terms", field_name: "terms"}, 
+            {id: "parent", title: "Parent", field_fn: (q) => Trend.Get_Query_Title(q.parent_id)}, 
+            {id: "order", title: "Order", field_name: "order"}, 
           ];
         }
 
@@ -86,6 +79,7 @@
         ];
         query_filter.filters = filters;
         query_sort.Load();
+        query_columns.Load();
         queries.datasource = new Queries_Datasource();
 
         count_hdr.addEventListener("click", () => count_dlg.close());
@@ -94,6 +88,7 @@
         query_hdr.addEventListener("click", () => query_dlg.close());
         cancel_btn.addEventListener("click", () => query_dlg.close());
         query_filter.addEventListener("search", On_Search);
+        query_columns.addEventListener("update", On_Update_Columns);
       }
 
       function On_Search(event)
@@ -112,8 +107,9 @@
       {
         const menu_options =
         [
-          { id: 1, title: "New", click: On_Click_New},
-          { id: 2, title: "Insert All Query Trends", click: On_Click_Update_All},
+          { id: 1, title: 'Manage Columns', click: () => query_columns.showModal()},
+          { id: 2, title: "New", click: On_Click_New},
+          { id: 3, title: "Insert All Query Trends", click: On_Click_Update_All},
           //{ id: 3, title: "xDelete Selected"},
         ];
         const menu_elem = new MB_Dlg_Btn();
@@ -142,6 +138,11 @@
         return menu_elem;
       }
 
+      function On_Update_Columns(event)
+      {
+        queries.columns_status = query_columns.value;
+      }
+
       function On_Click_View_Jobs(query)
       {
         const query_terms = query.terms.includes("%") ? query.terms : encodeURIComponent(query.terms);
@@ -151,7 +152,7 @@
 
       function On_Click_New()
       {
-        Clr_Input();
+        query_form.Clr_Input();
         query_dlg.showModal();
       }
 
@@ -165,13 +166,13 @@
           parent_id: query.id,
           order: null
         };
-        Set_Input(new_query);
+        query_form.Set_Input(new_query);
         query_dlg.showModal();
       }
 
       function On_Click_Edit(query)
       {
-        Set_Input(query);
+        query_form.Set_Input(query);
         query_dlg.showModal();
       }
 
@@ -194,7 +195,7 @@
 
       async function On_Click_Save()
       {
-        const form_data = Get_Input();
+        const form_data = query_form.Get_Input();
         if (form_data)
         {
           const id = await Query.Save(form_data);
@@ -329,6 +330,14 @@
     <paging-bar id="queries_paging" table-id="queries"></paging-bar>
     <table-buddy id="queries" page-size="10" render-as="tiles"></table-buddy>
 
+    <select-columns id="query_columns" hidden>
+      <li col-id="id">Id</li>
+      <li col-id="title">Title</li>
+      <li col-id="terms">Search Terms</li>
+      <li col-id="parent">Parent</li>
+      <li col-id="order">Order #</li>
+    </select-columns>
+
     <dialog id="count_dlg">
       <header id="count_hdr">Number of jobs found for <span id="count_query"></span></header>
       <main id="count_no"></main>
@@ -337,13 +346,13 @@
 
     <dialog id="query_dlg">
       <header id="query_hdr">Query Details</header>
-      <main>
+      <form-buddy id="query_form">
         <label>Id.</label><input-span name="id" placeholder="N/A"></input-span>
         <label>Title</label><input name="title" type="text">
         <label>Search Terms</label><input name="terms" type="text">
         <label>Parent</label><input name="parent_id" type="text">
         <label>Order</label><input name="order" type="number" min="0" max="9999999">
-      </main>
+      </form-buddy id="query_form">
       <footer>
         <button id="save_btn">Save</button>
         <button id="cancel_btn">Cancel</button>

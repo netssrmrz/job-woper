@@ -56,10 +56,12 @@ sort-buddy dialog::backdrop
 
 sort-buddy .dialog-header
 {
-  background: #040;
-  text-shadow: none;
-  font-size: 14px;
-  padding: 0 0 0 10px;
+  font-size: 16px;
+  color: #0f0;
+  padding: 0 8px 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 sort-buddy .field-list
