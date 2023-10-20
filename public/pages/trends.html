@@ -23,6 +23,7 @@
       import "/component/Input_Span.mjs";
       import "/component/Select_Columns.mjs";
       import "/component/Form_Buddy.mjs";
+      import "/component/Form_Dlg.mjs";
 
       class Trends_Datasource extends Datasource.Client_Paging 
       {
@@ -31,12 +32,12 @@
           const sel_col = new Table_Buddy.Column_Select("id");
           return [
             sel_col,
-            //{title_fn: () => Render_Head_Menu_Cell(sel_col), field_fn: Render_Menu_Cell}, 
-            {id: "menu", title_fn: () => Render_Head_Menu_Cell(sel_col)}, 
-            {id: "id", title: "Id.", field_name: "id"}, 
+            {id: "menu", title_fn: () => Render_Head_Menu_Cell(sel_col), field_fn: Render_Menu_Cell}, 
+            {id: "id", title: "ID", field_name: "id"}, 
             {id: "time", title: "Time", field_name: "datetime", renderAs: "datetime"}, 
             {id: "jobs", title: "# Jobs", field_name: "count"}, 
             {id: "query", title: "Query", field_fn: (t) => Trend.Get_Query_Title(t.query_id)}, 
+            {id: "query_id", title: "Query ID", field_name: "query_id"}, 
           ];
         }
 
@@ -82,6 +83,7 @@
 
         trends_filter.addEventListener("search", On_Search);
         trend_columns.addEventListener("update", On_Update_Columns);
+        trend_dlg.addEventListener("save", On_Click_Save);
       }
 
       async function Update_Data(ds, filter_by, sort_by)
@@ -96,8 +98,8 @@
         const menu_options =
         [
           { id: 1, title: 'Manage Columns', click: () => trend_columns.showModal()},
-          //{ id: 1, title: "xNew"},
-          { id: 2, title: "Delete Selected", click: e => Delete_Selected(e, sel_col)},
+          { id: 2, title: "New", click: trend_dlg.On_New},
+          { id: 3, title: "Delete Selected", click: e => Delete_Selected(e, sel_col)},
         ];
         const menu_elem = new MB_Dlg_Btn();
         menu_elem.options_flat = menu_options;
@@ -105,18 +107,38 @@
         return menu_elem;
       }
 
-      function Render_Menu_Cell(query, row_idx, cell_elem)
+      function Render_Menu_Cell(trend, row_idx, cell_elem)
       {
         const menu_options =
         [
           { id: 1, title: "xView", },
-          { id: 2, title: "xEdit", },
+          { id: 2, title: "Edit", click: () => trend_dlg.On_Edit(trend)},
           { id: 3, title: "xDelete", },
         ];
         const menu_elem = new MB_Dlg_Btn();
         menu_elem.options_flat = menu_options;
 
         return menu_elem;
+      }
+
+      async function On_Click_Save(event)
+      {
+        const trend = trend_dlg.data;
+        if (trend)
+        {
+          const time = new Date(trend.datetime);
+          trend.datetime = time.getTime();
+          
+          const id = await Trend.Save(trend);
+          if (id)
+          {
+            trends.Update_Render();
+          }
+          else
+          {
+            Utils.Handle_Errors(Trend);
+          }
+        }
       }
 
       function On_Update_Columns(event)
@@ -158,11 +180,19 @@
     <paging-bar id="trends_paging" table-id="trends"></paging-bar>
     <table-buddy id="trends" page-size="10"></table-buddy>
 
+    <form-dlg id="trend_dlg">
+      <label>ID</label><input-span name="id" placeholder="N/A"></input-span>
+      <label>Time</label><input name="datetime" type="datetime-local">
+      <label># Jobs</label><input name="count" type="number">
+      <label>Query ID</label><input name="query_id" type="text">
+    </form-dlg>
+
     <select-columns id="trend_columns" hidden>
-      <li col-id="id">Id.</li>
+      <li col-id="id">ID</li>
       <li col-id="time">Time</li>
       <li col-id="jobs"># Jobs</li>
       <li col-id="query">Query</li>
+      <li col-id="queryid">Query ID</li>
     </select-columns>
   </body>
 </html>

@@ -28,7 +28,7 @@ function Init()
   const app_config =
   {
     credential: firebase.credential.cert(config),
-    databaseURL: "https://trend-buddy-dev.firebaseio.com",
+    databaseURL: "https://job-woper-default-rtdb.asia-southeast1.firebasedatabase.app/",
   };
   fb_app = firebase.initializeApp(app_config);
   const fb_db = firebase.database();
@@ -61,30 +61,42 @@ async function To_Chart_Vals()
 {
   let query_ids = ["-KpXaq_9Y_gdfEalxOmu"];
   let groups = 
-  {
-    '123': 
-    [ 
-      { datetime: 123, count: 1, query_id: "-KpXaq_9Y_gdfEalxOmu" }, 
-      { datetime: 123, count: 2, query_id: "-KpXaq_9Y_gdfEalxOmu" } 
-    ],
-    '279': 
-    [ 
-      { datetime: 222, count: 3, query_id: "-KpXaq_9Y_gdfEalxOmu" }, 
-      { datetime: 234, count: 4, query_id: "-KpXaq_9Y_gdfEalxOmu" } 
-    ],
-    '357': 
-    [ 
-      { datetime: 333, count: 5, query_id: "-KpXaq_9Y_gdfEalxOmu" } 
-    ],
-    '513': 
-    [
-      { datetime: 444, count: 6, query_id: "-KpXaq_9Y_gdfEalxOmu" },
-      { datetime: 513, count: 7, query_id: "-KpXaq_9Y_gdfEalxOmu" },
-      { datetime: 513, count: 8, query_id: "-KpXaq_9Y_gdfEalxOmu" },
-      { datetime: 511, count: 9, query_id: "-KpXaq_9Y_gdfEalxOmu" },
-      { datetime: 456, count: 10, query_id: "-KpXaq_9Y_gdfEalxOmu" }
-    ]
-  };
+  [
+    {
+      id: '123',
+      items:
+      [ 
+        { datetime: 123, count: 1, query_id: "-KpXaq_9Y_gdfEalxOmu" }, 
+        { datetime: 123, count: 2, query_id: "-KpXaq_9Y_gdfEalxOmu" } 
+      ]
+    },
+    {
+      id: '279',
+      items: 
+      [ 
+        { datetime: 222, count: 3, query_id: "-KpXaq_9Y_gdfEalxOmu" }, 
+        { datetime: 234, count: 4, query_id: "-KpXaq_9Y_gdfEalxOmu" } 
+      ]
+    },
+    {
+      id: '357',
+      items:
+      [ 
+        { datetime: 333, count: 5, query_id: "-KpXaq_9Y_gdfEalxOmu" } 
+      ]
+    },
+    {
+      id: '513',
+      items: 
+      [
+        { datetime: 444, count: 6, query_id: "-KpXaq_9Y_gdfEalxOmu" },
+        { datetime: 513, count: 7, query_id: "-KpXaq_9Y_gdfEalxOmu" },
+        { datetime: 513, count: 8, query_id: "-KpXaq_9Y_gdfEalxOmu" },
+        { datetime: 511, count: 9, query_id: "-KpXaq_9Y_gdfEalxOmu" },
+        { datetime: 456, count: 10, query_id: "-KpXaq_9Y_gdfEalxOmu" }
+      ]
+    }
+  ];
   let actual = await Trend.To_Chart_Vals(db, groups, query_ids);
   assert.equal(actual.length, 5);
   assert.equal(actual[0][0], "Date");
@@ -100,30 +112,42 @@ async function To_Chart_Vals()
 
   query_ids = ["-KpXaq_9Y_gdfEalxOmu", "-KpPWAFGBhe6CxLYn22r"];
   groups = 
-  {
-    '123': 
-    [ 
-      { datetime: 123, count: 1, query_id: "-KpXaq_9Y_gdfEalxOmu" }, 
-      { datetime: 123, count: 2, query_id: "-KpPWAFGBhe6CxLYn22r" } 
-    ],
-    '279': 
-    [ 
-      { datetime: 222, count: 3, query_id: "-KpXaq_9Y_gdfEalxOmu" }, 
-      { datetime: 234, count: 4, query_id: "-KpXaq_9Y_gdfEalxOmu" } 
-    ],
-    '357': 
-    [ 
-      { datetime: 333, count: 5, query_id: "-KpPWAFGBhe6CxLYn22r" } 
-    ],
-    '513': 
-    [
-      { datetime: 444, count: 6, query_id: "-KpXaq_9Y_gdfEalxOmu" },
-      { datetime: 513, count: 7, query_id: "-KpXaq_9Y_gdfEalxOmu" },
-      { datetime: 513, count: 8, query_id: "-KpXaq_9Y_gdfEalxOmu" },
-      { datetime: 511, count: 9, query_id: "-KpPWAFGBhe6CxLYn22r" },
-      { datetime: 456, count: 10, query_id: "-KpPWAFGBhe6CxLYn22r" }
-    ]
-  };
+  [
+    {
+      id: '123',
+      items:
+      [ 
+        { datetime: 123, count: 1, query_id: "-KpXaq_9Y_gdfEalxOmu" }, 
+        { datetime: 123, count: 2, query_id: "-KpPWAFGBhe6CxLYn22r" } 
+      ]
+    },
+    {
+      id: '279',
+      items:
+      [ 
+        { datetime: 222, count: 3, query_id: "-KpXaq_9Y_gdfEalxOmu" }, 
+        { datetime: 234, count: 4, query_id: "-KpXaq_9Y_gdfEalxOmu" } 
+      ]
+    },
+    {
+      id: '357',
+      items:
+      [ 
+        { datetime: 333, count: 5, query_id: "-KpPWAFGBhe6CxLYn22r" } 
+      ]
+    },
+    {
+      id: '513',
+      items:
+      [
+        { datetime: 444, count: 6, query_id: "-KpXaq_9Y_gdfEalxOmu" },
+        { datetime: 513, count: 7, query_id: "-KpXaq_9Y_gdfEalxOmu" },
+        { datetime: 513, count: 8, query_id: "-KpXaq_9Y_gdfEalxOmu" },
+        { datetime: 511, count: 9, query_id: "-KpPWAFGBhe6CxLYn22r" },
+        { datetime: 456, count: 10, query_id: "-KpPWAFGBhe6CxLYn22r" }
+      ]
+    }
+  ];
   
   actual = await Trend.To_Chart_Vals(db, groups, query_ids);
   assert.equal(actual.length, 5);

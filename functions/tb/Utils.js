@@ -568,23 +568,27 @@ class Utils
 
     if (!Utils.isEmpty(items))
     {
-      groups = {};
+      groups = [];
       const min_item = Utils.Minimum(items, field_name);
       const max_item = Utils.Maximum(items, field_name);
+      const max = max_item[field_name];
+      const min = min_item[field_name];
 
       for (const item of items)
       {
         const val = item[field_name];
-        const max = max_item[field_name];
-        const min = min_item[field_name];
         const group_id = Utils.Ceiling_Bounded(val, max, min, span_count);
-        if (groups[group_id] == undefined || groups[group_id] == null)
+        let group = groups.find(g => g.id == group_id);
+        if (group == undefined || group == null)
         {
-          groups[group_id] = [];
+          group = {id: group_id, items: []};
+          groups.push(group);
         }
 
-        groups[group_id].push(item);
+        group.items.push(item);
       }
+
+      groups.sort((a, b) => a.id - b.id);
     }
 
     return groups;

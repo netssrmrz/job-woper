@@ -1,5 +1,4 @@
-﻿//import Util from './init.js';
-import Utils from './Utils.js';
+﻿import Utils from './Utils.js';
 
 class Trend
 {
@@ -212,13 +211,13 @@ class Trend
         vals[0].push(query_title);
       }
 
-      for (const group_id in groups)
+      for (const group of groups)
       {
-        const val = [Math.trunc(Number(group_id))];
+        const val = [Math.trunc(Number(group.id))];
         for (const query_id of query_ids)
         {
           let item_avg = null;
-          const items = groups[group_id].filter(item => item.query_id == query_id);
+          const items = group.items.filter(item => item.query_id == query_id);
           if (!Utils.isEmpty(items))
           {
             const item_count = items.length;
@@ -250,6 +249,11 @@ class Trend
     }
 
     return res;
+  }
+
+  static Save(db, trend)
+  {
+    return db.Save(Trend.table, trend);
   }
 
   static Delete(db, id)

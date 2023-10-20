@@ -86,10 +86,10 @@ function Group_By_Ceil_Span()
   ];
 
   const actual = Utils.Group_By_Ceil_Span(items, field_name, span_count);
-  assert.equal(actual["123"].length, 2);
-  assert.equal(actual["201"], undefined);
-  assert.equal(actual["279"].length, 2);
-  assert.equal(actual["357"].length, 1);
-  assert.equal(actual["435"], undefined);
-  assert.equal(actual["513"].length, 5);
+  assert.equal(actual.find(g=>g.id==123).items.length, 2);
+  assert.equal(actual.find(g=>g.id==201), undefined);
+  assert.equal(actual.find(g=>g.id==279).items.length, 2);
+  assert.equal(actual.find(g=>g.id==357).items.length, 1);
+  assert.equal(actual.find(g=>g.id==435), undefined);
+  assert.equal(actual.find(g=>g.id==513).items.length, 5);
 }

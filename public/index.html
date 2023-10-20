@@ -115,7 +115,7 @@
 
           guest_btn.addEventListener("click", On_Click_Guest);
 
-          document.body.addEventListener('animationend', On_Animation_End);
+          //document.body.addEventListener('animationend', On_Animation_End);
           requestAnimationFrame(Start_Anim);
         }
       }
@@ -251,6 +251,7 @@
           objs.splice(i, 1);
 
           objs.push(New_Explosion(now_time, this));
+          headings.addEventListener('animationend', On_Animation_End);
           headings.classList.add("shake");
         }
       }
