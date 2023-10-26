@@ -1,5 +1,6 @@
 ﻿import Utils from './Utils.js';
 
+/** Class representing a job query data point */
 class Trend
 {
   static table = "trend";
@@ -198,6 +199,17 @@ class Trend
     return vals;
   }
 
+  /**
+   * Get a single Trend object based on the given ID
+   * @param {Db} db
+   * @param {string} id
+   * @returns {Trend}
+   */
+  static Select_By_Id(db, id)
+  {
+    return db.Select_Obj_By_Id(Trend.table, id);
+  }
+
   static async To_Chart_Vals(db, groups, query_ids)
   {
     let vals = null;
@@ -251,6 +263,22 @@ class Trend
     return res;
   }
 
+  static async Insert_Interpolation(db, from_id, to_id, query_id, error)
+  {
+    let res = false;
+    const from_entry = await Trend.Select_By_Id(db, from_id);
+    const to_entry = await Trend.Select_By_Id(db, to_id);
+    const new_entries = Trend.Interpolate(from_entry, to_entry, query_id, error);
+    if (!Utils.isEmpty(new_entries))
+    {
+      const saves = new_entries.map(trend => Trend.Save(db, trend));
+      const results = await Promise.all(saves);
+      res = results.every(result => result != null);
+    }
+
+    return res;
+  }
+
   static Save(db, trend)
   {
     return db.Save(Trend.table, trend);
@@ -266,12 +294,76 @@ class Trend
     return db.Delete_By_Ids(Trend.table, ids);
   }
 
-  // legacy =============================================================================
-
-  static Select_By_Id(db, id)
+  /**
+   * Creates a set of trend objects that interpolate random values between the counts of
+   * two given trend objects. A Trend object is created for every month within the time span
+   * of the two given Trend objects and the count is given a random value based on a linear
+   * interpolation of the two Trend objects and with a variance of +/- the error value.
+   * @param {Trend} from_entry
+   * @param {Trend} to_entry 
+   * @param {string} query_id - Query ID to set for all resulting trend objects
+   * @param {number} error - Indicates the +/- variance of the random count values
+   * @returns {Trend[]}
+   */
+  static Interpolate(from_entry, to_entry, query_id, error)
   {
-    return db.Select_Obj_By_Id(Trend.table, id);
+    let trends = null;
+
+    if (from_entry.datetime > to_entry.datetime)
+    {
+      const temp = to_entry;
+      to_entry = from_entry;
+      from_entry = temp;
+    }
+
+    const months = Trend.Months_In_Range(from_entry.datetime, to_entry.datetime);
+    if (!Utils.isEmpty(months))
+    {
+      const diff_count = to_entry.count - from_entry.count;
+      const month_change = diff_count / months.length;
+      let month_count = from_entry.count;
+      trends = [];
+
+      for (const month of months)
+      {
+        month_count += month_change;
+        const count = Math.trunc(Utils.Random_Error(month_count, error));
+        const trend = 
+        {
+          query_id,
+          datetime: month,
+          count: count
+        };
+        trends.push(trend);
+      }
+    }
+
+    return trends;
   }
+
+  static Months_In_Range(from_time, to_time)
+  {
+    let dates = null;
+
+    if (to_time > from_time)
+    {
+      dates = [];
+
+      let from_date = new Date(from_time);
+      from_date.setMonth(from_date.getMonth() + 1);
+      const to_date = new Date(to_time);
+
+      for (let date = from_date; date < to_date; date.setMonth(date.getMonth() + 1))
+      {
+        const time = date.getTime();
+        dates.push(time);
+      }
+    }
+
+    return dates;
+  }
+  
+  // legacy =============================================================================
 
   Insert(db, on_success_fn)
   {

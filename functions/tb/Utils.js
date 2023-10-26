@@ -646,7 +646,7 @@ class Utils
     }
   }
 
-  static async Import_API(config, on_pre_fetch_fn, on_fetch_fn)
+  static async Import_API(config, on_pre_fetch_fn, on_fetch_fn, token, on_error_fn)
   {
     const api = await import(config.api_client_url);
     for (const comp_class_name in api.default)
@@ -655,6 +655,8 @@ class Utils
       comp_class.server_host = config.api_server_host;
       comp_class.On_Fetch = on_fetch_fn;
       comp_class.On_Pre_Fetch = on_pre_fetch_fn;
+      comp_class.headers = !Utils.isEmpty(token) ? {authorization: "Firebase " + token} : null;
+      comp_class.On_Error = on_error_fn;
       window[comp_class_name] = comp_class;
     }
 
@@ -877,6 +879,24 @@ class Utils
       pts = pts.sort((p1, p2) => p1.d - p2.d);
       res = { x: pts[0].x, y: pts[0].y };
     }
+
+    return res;
+  }
+
+  static Random(from, to)
+  {
+    const r = Math.random();
+    const range = to - from;
+    const res = r * range + from;
+
+    return res;
+  }
+
+  static Random_Error(from, error)
+  {
+    const r = Math.random();
+    const variance = r * 2 - 1;
+    const res = variance * error + from;
 
     return res;
   }

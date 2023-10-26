@@ -24,6 +24,7 @@
       import "/component/Select_Columns.mjs";
       import "/component/Form_Buddy.mjs";
       import "/component/Form_Dlg.mjs";
+      import "/component/Select_Query.mjs";
 
       class Trends_Datasource extends Datasource.Client_Paging 
       {
@@ -32,7 +33,7 @@
           const sel_col = new Table_Buddy.Column_Select("id");
           return [
             sel_col,
-            {id: "menu", title_fn: () => Render_Head_Menu_Cell(sel_col), field_fn: Render_Menu_Cell}, 
+            {id: "menu", title_fn: () => Render_Head_Menu_Cell(sel_col, this.data), field_fn: Render_Menu_Cell}, 
             {id: "id", title: "ID", field_name: "id"}, 
             {id: "time", title: "Time", field_name: "datetime", renderAs: "datetime"}, 
             {id: "jobs", title: "# Jobs", field_name: "count"}, 
@@ -81,9 +82,12 @@
         On_Update_Columns();
         trends.datasource = new Trends_Datasource();
 
+        inter_query.options = await Query.Select_As_Options();
+
         trends_filter.addEventListener("search", On_Search);
         trend_columns.addEventListener("update", On_Update_Columns);
         trend_dlg.addEventListener("save", On_Click_Save);
+        inter_dlg.addEventListener("save", On_Click_Do_Interpolate);
       }
 
       async function Update_Data(ds, filter_by, sort_by)
@@ -93,13 +97,14 @@
         trends.classList.remove("is-busy");
       }
 
-      function Render_Head_Menu_Cell(sel_col)
+      function Render_Head_Menu_Cell(sel_col, trends)
       {
         const menu_options =
         [
           { id: 1, title: 'Manage Columns', click: () => trend_columns.showModal()},
           { id: 2, title: "New", click: trend_dlg.On_New},
-          { id: 3, title: "Delete Selected", click: e => Delete_Selected(e, sel_col)},
+          { id: 3, title: "Interpolate", click: e => On_Click_Interpolate(e, sel_col, trends)},
+          { id: 4, title: "Delete Selected", click: e => On_Click_Delete_Selected(e, sel_col)},
         ];
         const menu_elem = new MB_Dlg_Btn();
         menu_elem.options_flat = menu_options;
@@ -119,6 +124,44 @@
         menu_elem.options_flat = menu_options;
 
         return menu_elem;
+      }
+
+      function On_Click_Interpolate(menu_elem, sel_col, trends)
+      {
+        const ids = sel_col.selected_ids;
+        if (!Utils.isEmpty(ids) && ids.length >= 2)
+        {
+          const trend = trends.find(t => t.id == ids[0]);
+          const data =
+          {
+            from_id: ids[0],
+            to_id: ids[1],
+            query_id: trend.query_id,
+            error: 100
+          };
+          inter_dlg.On_Edit(data);
+        }
+      }
+
+      async function On_Click_Do_Interpolate()
+      {
+        const data = inter_dlg.data;
+        if (data)
+        {
+          inter_dlg.classList.add("busy");
+          const ok = 
+            await Trend.Insert_Interpolation
+              (data.from_id, data.to_id, data.query_id, data.error);
+          inter_dlg.classList.remove("busy");
+          if (ok)
+          {
+            trends.Update_Render();
+          }
+          else
+          {
+            Utils.Handle_Errors(Trend);
+          }
+        }
       }
 
       async function On_Click_Save(event)
@@ -151,7 +194,7 @@
         trends.where = event.detail;
       }
 
-      async function Delete_Selected(menu_elem, sel_col)
+      async function On_Click_Delete_Selected(menu_elem, sel_col)
       {
         const confirmed = window.confirm("Are you sure?");
         if (confirmed)
@@ -160,6 +203,7 @@
           if (is_deleted)
           {
             trends.Update_Render();
+            sel_col.Unselect_All();
           }
           else
           {
@@ -185,6 +229,13 @@
       <label>Time</label><input name="datetime" type="datetime-local">
       <label># Jobs</label><input name="count" type="number">
       <label>Query ID</label><input name="query_id" type="text">
+    </form-dlg>
+
+    <form-dlg id="inter_dlg" ok-text="OK">
+      <label>From Trend ID</label><input name="from_id" type="text">
+      <label>To Trend ID</label><input name="to_id" type="text">
+      <label>Query</label><select-query id="inter_query" name="query_id"></select-query>
+      <label>Variance</label><input name="error" type="number">
     </form-dlg>
 
     <select-columns id="trend_columns" hidden>

@@ -244,6 +244,23 @@ class Utils
     }
   }
 
+  static Ceiling_Bounded(val, max, min, span_count)
+  {
+    let ceil = null;
+    const range = max - min;
+    const span = range / span_count;
+
+    if (val >= min && val <=max)
+    {
+      const norm_val = val - min;
+      const unit_val = norm_val / span;
+      const unit_ceil = Math.ceil(unit_val);
+      ceil = unit_ceil * span + min;
+    }
+
+    return ceil;
+  }
+
   static Clone_Template(template_elem)
   {
     const clone = template_elem.content.cloneNode(true);
@@ -277,6 +294,28 @@ class Utils
     }
   }
 
+  static Extract_Str(src, prefix, postfix, from_index)
+  {
+    let res = null;
+
+    let start_index = src.indexOf(prefix, from_index);
+    if (start_index != -1)
+    {
+      start_index += prefix.length;
+      const end_index = src.indexOf(postfix, start_index);
+      if (end_index != -1)
+      {
+        res = src.substring(start_index, end_index);
+      }
+      else
+      {
+        res = src.substring(start_index);
+      }
+    }
+
+    return res;
+  }
+
   static async fetch(url, method, xApiKey, body)
   {
     let res = null;
@@ -306,7 +345,7 @@ class Utils
 
   static fetchGetJson(url, xApiKey)
   {
-    return Utils.fetchJson(url, "GET", xApiKey);
+    return Utils.fetchJson(url, "GET", {'x-api-key':xApiKey});
   }
 
   static async fetchGetXml(url)
@@ -331,27 +370,20 @@ class Utils
     return res;
   }
 
-  static async fetchJson(url, method, xApiKey, body, auth)
+  static async fetchJson(url, method, headers, body)
   {
     let res = null;
     const options =
     {
       method,
-      headers:
-      {
-        'Content-Type': 'application/json',
-        'x-api-key': xApiKey
-      }
+      headers,
+      body
     };
 
-    if (body)
+    /*if (body)
     {
       options.body = body;
-    }
-    if (auth)
-    {
-      options.headers.Authorization = auth;
-    }
+    }*/
 
     const httpRes = await fetch(url, options);
     if (httpRes)
@@ -372,7 +404,36 @@ class Utils
       body = JSON.stringify(bodyObj);
     }
 
-    return Utils.fetchJson(url, "POST", xApiKey, body, auth);
+    return Utils.fetchJson(url, "POST", {'x-api-key':xApiKey,Authorization:auth}, body);
+  }
+
+  static async Fetch_Text(url, method, headers, body)
+  {
+    let res = null;
+    const options = 
+    {
+      method: method || "get",
+      headers,
+      body
+    };
+
+    const request = fetch(url, options);
+    const response = await request;
+    if (response)
+    {
+      const response_text = await response.text();
+      if (response.ok)
+      {
+        res = response_text;
+      }
+      else
+      {
+        console.error("Utils.Fetch_Text(): " + response.status + " " + response.statusText + " " + response.url);
+        console.error("Utils.Fetch_Text(): response_text =", response_text);
+      }
+    }
+
+    return res;
   }
 
   static Focus_Input()
@@ -497,6 +558,38 @@ class Utils
     }
 
     return store_id;
+  }
+
+  static Group_By_Ceil_Span(items, field_name, span_count)
+  {
+    let groups = null;
+
+    if (!Utils.isEmpty(items))
+    {
+      groups = [];
+      const min_item = Utils.Minimum(items, field_name);
+      const max_item = Utils.Maximum(items, field_name);
+      const max = max_item[field_name];
+      const min = min_item[field_name];
+
+      for (const item of items)
+      {
+        const val = item[field_name];
+        const group_id = Utils.Ceiling_Bounded(val, max, min, span_count);
+        let group = groups.find(g => g.id == group_id);
+        if (group == undefined || group == null)
+        {
+          group = {id: group_id, items: []};
+          groups.push(group);
+        }
+
+        group.items.push(item);
+      }
+
+      groups.sort((a, b) => a.id - b.id);
+    }
+
+    return groups;
   }
 
   static Handle_Errors(api_class)
@@ -714,6 +807,38 @@ class Utils
     return res;
   }
 
+  static Maximum(items, field_name)
+  {
+    let res = null;
+
+    if (!Utils.isEmpty(items) && !Utils.isEmpty(field_name))
+    {
+      res = items.reduce(Compare);
+      function Compare(max_item, item)
+      {
+        return item[field_name] > max_item[field_name] ? item : max_item;
+      }
+    }
+    
+    return res;
+  }
+
+  static Minimum(items, field_name)
+  {
+    let res = null;
+
+    if (!Utils.isEmpty(items) && !Utils.isEmpty(field_name))
+    {
+      res = items.reduce(Compare);
+      function Compare(max_item, item)
+      {
+        return item[field_name] < max_item[field_name] ? item : max_item;
+      }
+    }
+
+    return res;
+  }
+
   static nullIfEmpty(items)
   {
     let res = items;
@@ -918,6 +1043,41 @@ class Utils
     {
       setTimeout(resolve, ms);
     });
+  }
+
+  static Sort(items, field_name)
+  {
+    var res = null;
+
+    if (items && items.length > 0)
+    {
+      res = items.sort(Compare);
+    }
+  
+    return res;
+
+    function Compare(a, b)
+    {
+      var res, a_val, b_val;
+
+      a_val = a[field_name];
+      b_val = b[field_name];
+  
+      if (a_val && !b_val)
+        res = -1;
+      else if (!a_val && b_val)
+        res = 1;
+      else if (!a_val && !b_val)
+        res = 0;
+      else if (a_val < b_val)
+        res = -1;
+      else if (a_val > b_val)
+        res = 1;
+      else
+        res = 0;
+  
+      return res;
+    }
   }
 
   static to2DigitStr(number)

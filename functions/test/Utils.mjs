@@ -11,6 +11,7 @@ function Utils_Tests()
   it('Minimum', Minimum);
   it('Ceiling_Bounded', Ceiling_Bounded);
   it('Group_By_Ceil_Span', Group_By_Ceil_Span);
+  it('Random_Error', Random_Error);
 }
 
 function Maximum() 
@@ -92,4 +93,67 @@ function Group_By_Ceil_Span()
   assert.equal(actual.find(g=>g.id==357).items.length, 1);
   assert.equal(actual.find(g=>g.id==435), undefined);
   assert.equal(actual.find(g=>g.id==513).items.length, 5);
+}
+
+function Random_Error()
+{
+  let from = 100, error = 50;
+  let actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+
+  from = 50, error = 25;
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+
+  from = 20, error = 10;
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+
+  from = 0, error = 5;
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+
+  from = -10, error = 1;
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
+  actual = Utils.Random_Error(from, error);
+  assert.ok(actual >= from-error && actual < from+error);
 }

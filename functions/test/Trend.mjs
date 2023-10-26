@@ -3,6 +3,7 @@ import firebase from 'firebase-admin';
 import Db_Realtime from "../tb/Db_Realtime.mjs"
 import Trend from "../tb/trend.js"
 import config from './config.mjs';
+import trend_data from "./data/trends.mjs";
 
 let db = null, fb_app = null;
 
@@ -19,6 +20,9 @@ function Trend_Tests()
   it('Select_Chart_Vals_By_Query_Id', Select_Chart_Vals_By_Query_Id);
   it('Select_Chart_Vals_By_Query_Ids', Select_Chart_Vals_By_Query_Ids);
   it('Select_By_Query_Ids', Select_By_Query_Ids);
+  it('Months_In_Range', Months_In_Range);
+  it('Interpolate', Interpolate);
+  it('Insert_Interpolation', Insert_Interpolation);
 
   after(Cleanup);
 }
@@ -206,3 +210,160 @@ async function Select_By_Query_Ids()
   assert.ok(ids.includes(actual[3].query_id));
   assert.ok(ids.includes(actual[4].query_id));
 }
+
+function Months_In_Range()
+{
+  let from_time = (new Date(1971, 10, 13)).getTime();
+  let to_time = (new Date(1972, 10, 13)).getTime();
+  let expected =
+  [
+    (new Date(1971, 11, 13)).getTime(),
+    (new Date(1972, 0, 13)).getTime(),
+    (new Date(1972, 1, 13)).getTime(),
+    (new Date(1972, 2, 13)).getTime(),
+    (new Date(1972, 3, 13)).getTime(),
+    (new Date(1972, 4, 13)).getTime(),
+    (new Date(1972, 5, 13)).getTime(),
+    (new Date(1972, 6, 13)).getTime(),
+    (new Date(1972, 7, 13)).getTime(),
+    (new Date(1972, 8, 13)).getTime(),
+    (new Date(1972, 9, 13)).getTime(),
+  ];
+
+  let actual = Trend.Months_In_Range(from_time, to_time);
+  assert.equal(actual.length, 11);
+  assert.deepEqual(actual, expected);
+}
+
+function Interpolate()
+{
+  let from_entry =
+  {
+    id: "aaa",
+    query_id: "ccc",
+    datetime: (new Date(2022, 0, 1)).getTime(),
+    count: 0,
+  };
+  let to_entry =
+  {
+    id: "bbb",
+    query_id: "ccc",
+    datetime: (new Date(2022, 11, 1)).getTime(),
+    count: 100,
+  };
+  let query_id = "ccc", error = 50;
+  let actual = Trend.Interpolate(from_entry, to_entry, query_id, error);
+  assert.equal(actual.length, 10);
+  let min_count = from_entry.count - error;
+  let max_count = to_entry.count + error;
+  for (const trend of actual)
+  {
+    assert.equal(trend.id, null);
+    assert.equal(trend.query_id, query_id);
+    assert.ok(trend.datetime > from_entry.datetime && trend.datetime < to_entry.datetime);
+    assert.ok
+    (
+      trend.count >= min_count && trend.count < max_count,
+      `count=${trend.count} min_count=${min_count} max_count=${max_count}`
+    );
+  }
+
+  from_entry =
+  {
+    id: "aaa",
+    query_id: "ccc",
+    datetime: (new Date(2022, 0, 1)).getTime(),
+    count: 100,
+  };
+  to_entry =
+  {
+    id: "bbb",
+    query_id: "ccc",
+    datetime: (new Date(2022, 11, 1)).getTime(),
+    count: 0,
+  };
+  query_id = "ccc", error = 50;
+  actual = Trend.Interpolate(from_entry, to_entry, query_id, error);
+  assert.equal(actual.length, 10);
+  min_count = to_entry.count - error;
+  max_count = from_entry.count + error;
+  for (const trend of actual)
+  {
+    assert.equal(trend.id, null);
+    assert.equal(trend.query_id, query_id);
+    assert.ok(trend.datetime > from_entry.datetime && trend.datetime < to_entry.datetime);
+    assert.ok
+    (
+      trend.count >= min_count && trend.count < max_count,
+      `count=${trend.count} min_count=${min_count} max_count=${max_count}`
+    );
+  }
+
+}
+
+async function Insert_Interpolation()
+{
+  db_mock.tag = "ii1_";
+  let from_id = "aaa", to_id = "bbb", query_id = "ccc", error = 50;
+  let actual = await Trend.Insert_Interpolation(db_mock, from_id, to_id, query_id, error);
+  let mock_trends = db_mock.data[Trend.table];
+  let mock_ids = Object.keys(mock_trends);
+  let new_ids = mock_ids.filter(id => id.startsWith("ii1_"));
+  assert.ok(actual);
+  assert.equal(new_ids.length, 10);
+  const from_entry = mock_trends[from_id];
+  const to_entry = mock_trends[to_id];
+  let min_count = from_entry.count - error;
+  let max_count = to_entry.count + error;
+  for (const new_id of new_ids)
+  {
+    const trend = mock_trends[new_id];
+    assert.equal(trend.id, new_id);
+    assert.equal(trend.query_id, query_id);
+    assert.ok(trend.datetime > from_entry.datetime && trend.datetime < to_entry.datetime);
+    assert.ok
+    (
+      trend.count >= min_count && trend.count < max_count,
+      `count=${trend.count} min_count=${min_count} max_count=${max_count}`
+    );
+  }
+}
+
+const db_mock = 
+{
+  last_id: 0,
+  tag: "new_",
+  data:
+  {
+    "trend": 
+    {
+      "aaa":
+      {
+        id: "aaa",
+        query_id: "ccc",
+        datetime: (new Date(2022, 0, 1)).getTime(),
+        count: 0,
+      },
+      "bbb": 
+      {
+        id: "bbb",
+        query_id: "ccc",
+        datetime: (new Date(2022, 11, 1)).getTime(),
+        count: 100,
+      }    
+    }
+  },
+
+  Select_Obj_By_Id: function(table_name, id)
+  {
+    return this.data[table_name][id];
+  },
+
+  Save: function(table_name, trend)
+  {
+    ++this.last_id;
+    trend.id = this.tag + this.last_id;
+    this.data[table_name][trend.id] = trend;
+    return true;
+  }
+};

@@ -67,6 +67,11 @@ class Form_Dlg extends HTMLElement
     this.innerHTML = html;
     Utils.Set_Id_Shortcuts(this, this, "cid");
 
+    if (this.hasAttribute("ok-text"))
+    {
+      const ok_text = this.getAttribute("ok-text");
+      this.save_btn.innerText = ok_text;
+    }
     this.form.append(...form_inputs);
 
     this.hdr.addEventListener("click", () => this.dlg.close());

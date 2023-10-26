@@ -41,18 +41,19 @@ class Form_Buddy extends HTMLElement
       res = {};
       for (const elem of elems)
       {
+        const name = elem.getAttribute("name");
         const value = elem.value;
         if (Utils.isEmpty(value))
         {
-          res[elem.name] = null;
+          res[name] = null;
         }
         else if (elem.type == "number")
         {
-          res[elem.name] = elem.valueAsNumber;
+          res[name] = elem.valueAsNumber;
         }
         else
         {
-          res[elem.name] = value;
+          res[name] = value;
         }
       }
     }
@@ -67,7 +68,8 @@ class Form_Buddy extends HTMLElement
     {
       for (const elem of elems)
       {
-        const value = data[elem.name]
+        const name = elem.getAttribute("name");
+        const value = data[name];
         if (value == undefined)
         {
           elem.value = null;
