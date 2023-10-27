@@ -182,6 +182,15 @@ class Utils
     return res;
   }
 
+  /**
+   * Calculate the distnace between 2 points
+   * @static
+   * @param {number} x1 - x coordinate of first point
+   * @param {number} y1 - y coordinate of first point
+   * @param {number} x2 - x coordinate of second point
+   * @param {number} y2 - y coordinate of second point
+   * @param {number}
+   */
   static Calc_Distance(x1, y1, x2, y2)
   {
     return Math.hypot(x2 - x1, y2 - y1);
@@ -881,6 +890,12 @@ class Utils
     return res;
   }
 
+  /**
+   * Generate random number between specified numeric range
+   * @param {number} from - lower limit of range
+   * @param {number} to - upper limit of range
+   * @returns {number}
+   */
   static Random(from, to)
   {
     const r = Math.random();

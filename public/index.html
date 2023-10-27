@@ -89,8 +89,8 @@
       }
     </style>
     <script type="module">
-      import Utils from "/lib/Utils.js";
-      import JW_Utils from "/lib/JW_Utils.js";
+      import Utils from "./lib/Utils.js";
+      import JW_Utils from "./lib/JW_Utils.js";
       import '/__/firebase/9.4.0/firebase-app-compat.js';
       import '/__/firebase/9.4.0/firebase-auth-compat.js';
       import '/__/firebase/init.js?useEmulator=true';
@@ -128,7 +128,7 @@
 
         let prev_time = start_time;
         const objs = [];
-        objs.push(New_Missile(start_time));
+        objs.push(New_Missile(ctx, start_time));
 
         requestAnimationFrame(Process_Anim);
         function Process_Anim(now_time)
@@ -138,7 +138,7 @@
           if (elapsed_time > 1000 && objs.length < 10)
           {
             prev_time = now_time;
-            objs.push(New_Missile(now_time));
+            objs.push(New_Missile(ctx, now_time));
           }
 
           if (!Utils.isEmpty(objs))
@@ -163,8 +163,8 @@
 
       function New_Explosion(now_time, missile)
       {
-        const x = missile.x + Math.cos(missile.end_angle) * missile.radius * missile.scale_x;
-        const y = missile.y + Math.sin(missile.end_angle) * missile.radius * missile.scale_y;
+        const x = missile.x + missile.px;
+        const y = missile.y + missile.py;
 
         const explosion =
         {
@@ -200,26 +200,25 @@
         }
       }
 
-      function New_Missile(now_time)
+      function New_Missile(ctx, now_time)
       {
-        const start_angle = Utils.Random(0, Math.PI*2);
-        const curr_angle = start_angle;
-        const end_angle = start_angle + Utils.Random(Math.PI*0.5, Math.PI*0.75);
-        const counterclockwise = false;
+        const v = 0.1;
+        const cx = ctx.canvas.width / 2;
+        const cy = ctx.canvas.height / 2;
+        const r = Utils.Calc_Distance(0, 0, ctx.canvas.width, ctx.canvas.height) / 2;
+        const a = Utils.Random(0, 2 * Math.PI);
+        const dx = Math.cos(a);
+        const dy = Math.sin(a);
 
         const missile =
         {
           Draw: Draw_Missile,
           Process: Process_Missile,
-          x: Utils.Random(0, canvas.width*0.8), y: Utils.Random(0, canvas.height*0.8),
-          //x: canvas.width*0.5, y: canvas.height*0.5,
-          scale_x: Math.random() > 0.5 ? 1 : -1, scale_y: Math.random() > 0.5 ? 1 : -1,
-          //scale_x: -1, scale_y: 1,
-          radius: Utils.Random(100, 500), counterclockwise,
-          //radius: 100, counterclockwise,
-          start_angle, curr_angle, end_angle,
-          start_time: now_time, end_time: now_time + Utils.Random(4000, 10000)
-          //start_time: now_time, end_time: now_time + 2000
+          x: cx + dx * r, y: cy + dy * r,
+          px: 0, py: 0, 
+          vx: -dx * v, vy: -dy * v,
+          time: now_time,
+          end_time: now_time + Utils.Random(4000, 10000)
         };
         return missile;
       }
@@ -227,25 +226,22 @@
       function Draw_Missile(ctx)
       {
         ctx.save();
-        ctx.scale(this.scale_x, this.scale_y);
-        ctx.beginPath();
         ctx.strokeStyle = "#f00";
-        ctx.arc(0, 0, this.radius, this.start_angle, this.curr_angle, this.counterclockwise);
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(this.px, this.py);
         ctx.stroke();
         ctx.restore();
       }
 
       function Process_Missile(now_time, objs)
       {
-        const missile_total_time = this.end_time - this.start_time;
-        const missile_total_angle = this.end_angle - this.start_angle;
-        const missile_elapsed_time = now_time - this.start_time;
-
-        this.curr_angle = 
-          missile_elapsed_time * missile_total_angle / missile_total_time 
-          + this.start_angle;
+        const elapsed = now_time - this.time;
+        this.px = this.vx * elapsed;
+        this.py = this.vy * elapsed;
         
-        if (this.curr_angle > this.end_angle)
+        if (now_time > this.end_time)
         {
           const i = objs.indexOf(this);
           objs.splice(i, 1);
