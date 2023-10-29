@@ -131,7 +131,8 @@
           { id: 5, title: "Edit", click: () => On_Click_Edit(query)},
           { id: 6, title: "Delete", click: () => On_Click_Delete(query)},
           { id: 7, title: "Extract Job Count", click: () => On_Click_Execute(query)},
-          { id: 8, title: "Update Job Count", click: () => On_Click_Update(query)},
+          { id: 8, title: "Extract Job Page", click: () => On_Click_Page(query)},
+          { id: 9, title: "Update Job Count", click: () => On_Click_Update(query)},
         ];
         const menu_elem = new MB_Dlg_Btn();
         menu_elem.options_flat = menu_options;
@@ -210,6 +211,16 @@
           }
         }
         query_dlg.close();
+      }
+
+      async function On_Click_Page(query)
+      {
+        const page = await Jobs.Get_Job_Page(query.terms);
+        console.log("On_Click_Page(): page.indeed_url =", page.indeed_url);
+        console.log("On_Click_Page(): page.count =", page.count);
+
+        const new_window = window.open(null, "_blank");
+        new_window.document.write(page.html);
       }
 
       async function On_Click_Execute(query)

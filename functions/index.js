@@ -33,7 +33,7 @@ const rpc_buddy = new RPC_Buddy
   [
     {name: "Trend.Select_All", inject: [db]}, 
     {name: "Trend.Get_Query_Title", inject: [db]}, 
-    {name: "Trend.Select_Stats", inject: [db]}, 
+    {name: "Trend.Select_Stats_By_Query_Ids", inject: [db]}, 
     {name: "Trend.Select_Last_Val", inject: [db]}, 
     {name: "Trend.Select_Prev_Val", inject: [db]}, 
     {name: "Trend.Select_Prev_Month_Val", inject: [db]}, 
@@ -56,6 +56,7 @@ const rpc_buddy = new RPC_Buddy
     {name: "Query.Insert_All", inject: [db, Trend, Jobs], on_auth_fn}, 
 
     {name: "Jobs.Get_Job_Count", on_auth_fn}, 
+    {name: "Jobs.Get_Job_Page", on_auth_fn}, 
 
     {name: "Admin.Refresh_Token", on_auth_fn}, 
   ],

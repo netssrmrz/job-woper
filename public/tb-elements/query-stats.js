@@ -60,7 +60,7 @@ export class QueryStats extends PolymerElement
         .val
         {
           display: inline-block;
-          width: 158px;
+          width: 200px;
           text-align: right;
         }
 
@@ -115,23 +115,22 @@ export class QueryStats extends PolymerElement
     `;
   }
 
-  async ready() 
+  ready() 
   {
     super.ready();
-    this.$.title_elem.textContent = this.query.title;
+    this.$.title_elem.textContent = this.stats.title;
 
-    const val = await window.Trend.Select_Last_Val(this.query.id);
-    const prev_val = await window.Trend.Select_Prev_Val(this.query.id);
-    const prev_month_val = await window.Trend.Select_Prev_Month_Val(this.query.id);
-    const first_entry = await window.Trend.Select_First(this.query.id);
-    const first_val = first_entry.count;
+    const val = this.stats.last_entry.count;
+    const prev_val = this.stats.prev_entry.count;
+    const prev_month_val = this.stats.prev_month_entry.count;
+    const first_val = this.stats.first_entry.count;
 
     this.$.val_elem.textContent = val;
     
     this.Append_Trend(val, prev_val, this.$.val_d_elem, this.$.val_d_pct_elem, this.$.d_elem, this.$.val_d_icon_elem);
     this.Append_Trend(val, prev_month_val, this.$.val_month_d_elem, this.$.val_month_d_pct_elem, this.$.month_d_elem, this.$.val_month_d_icon_elem);
     this.Append_Trend(val, first_val, this.$.val_overall_d_elem, this.$.val_overall_d_pct_elem, this.$.overall_d_elem, this.$.val_overall_d_icon_elem);
-    this.Append_Since(first_entry.datetime);
+    this.Append_Since(this.stats.first_entry.datetime);
   }
 
   Append_Since(millis)

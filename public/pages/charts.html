@@ -414,33 +414,30 @@
 
     // UI =========================================================================================
 
-    function Show_Trend(query, child_queries)
+    async function Show_Trend(query, child_queries)
     {
       JW_Utils.Clr(stats_elem);
+      const query_ids = child_queries.map(q => q.id);
+      const stats = await Trend.Select_Stats_By_Query_Ids(query_ids);
+      stats.sort((s1, s2) => s2.last_entry.count - s1.last_entry.count);
 
       // add rankings
       const rank_elem = document.createElement("query-rankings");
-      rank_elem.db = db;
-      rank_elem.query = query;
-      rank_elem.child_queries = child_queries;
+      rank_elem.stats = stats.slice(0, 5);
       stats_elem.append(rank_elem);
 
       // add pie chart
       const weight_elem = document.createElement("query-weights");
-      weight_elem.db = db;
-      weight_elem.query = query;
-      weight_elem.child_queries = child_queries;
+      weight_elem.stats = stats;
       stats_elem.append(weight_elem);
 
       stats_elem.append(document.createElement("br"));
 
       // add movement panels for each tech
-      for (let c=0; c<child_queries.length; c++)
+      for (const stat of stats)
       {
         const stat_elem = document.createElement("query-stats");
-        stat_elem.db = db;
-        stat_elem.query = child_queries[c];
-
+        stat_elem.stats = stat;
         stats_elem.append(stat_elem);
       }
 

@@ -30,7 +30,6 @@ export class QueryWeights extends PolymerElement
   async ready() 
   {
     super.ready();
-    //this.$.title_div.textContent = this.query.title + " Rankings";
     this.Init_Chart(this.$.chart_div);
   }
 
@@ -39,12 +38,12 @@ export class QueryWeights extends PolymerElement
     Load_OK = Load_OK.bind(this);
     google.charts.setOnLoadCallback(Load_OK);
     google.charts.load('current', { 'packages': ['corechart'] });
-    async function Load_OK()
+    function Load_OK()
     {
       const chart = new google.visualization.PieChart(chart_elem);
       chart_elem.chart = chart;
 
-      let draw_data = await this.Data_To_Array(this.child_queries);
+      let draw_data = this.Data_To_Array();
       this.Draw_Chart(chart_elem, draw_data);
     }
   }
@@ -92,32 +91,15 @@ export class QueryWeights extends PolymerElement
     chart_elem.chart.draw(data_table, options);
   }
 
-  async Data_To_Array()
+  Data_To_Array()
   {
     const titles = ["Tech", "Job Count", { role: 'style' }];
     const values = [titles];
 
-    for (let i=0; i<this.child_queries.length; i++)
+    for (const stat of this.stats)
     {
-      const query = this.child_queries[i];
-      const count = await window.Trend.Select_Last_Val(query.id);
-      const value = [query.title, count, "color: #0c0"];
+      const value = [stat.title, stat.last_entry.count, "color: #0c0"];
       values.push(value);
-    }
-
-    values.sort(Compare);
-    function Compare(a, b)
-    {
-      let res = 0;
-
-      const a_count = a[1];
-      const b_count = b[1];
-      if (a_count < b_count)
-        res = 1;
-      else if (a_count > b_count)
-        res = -1;
-
-      return res;
     }
 
     return values;

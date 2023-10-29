@@ -1,5 +1,6 @@
 ﻿import Utils from "./Utils.js";
 import config from "../config.mjs";
+import {ZenRows} from "zenrows";
 
 class Jobs
 {
@@ -97,16 +98,68 @@ class Jobs
     return count;
   }
 
+  static async xGet_Job_Count(query)
+  {
+    const html = await Jobs.Get_Job_HTML(query);
+    const count = Jobs.Extract_Count(html);
+
+    return count;
+  }
+
   static async Get_Job_Count(query)
   {
     const api_key = config.zen_rows_api_key;
-    const zenrows_url = "https://api.zenrows.com/v1/?apikey=" + api_key + "&js_render=true&url=";
-    const indeed_url = encodeURIComponent("https://www.indeed.com/jobs?q=" + query);
-    const url = zenrows_url + indeed_url;
-    const res_html = await Utils.Fetch_Text(url);
-    const count = Jobs.Extract_Count(res_html);
+    const client = new ZenRows(api_key);
+    const indeed_url = "https://www.indeed.com/jobs?q=" + Jobs.Encode(query) + "&l=United+States";
+    const options =
+    {
+      //"js_render": "true",
+      //"wait": "3000",
+      "css_extractor": "{\"class\":\"div.jobsearch-JobCountAndSortPane-jobCount\"}"
+    };
+
+    const clients = 
+    [
+      client.get(indeed_url, options),
+      client.get(indeed_url, options),
+      client.get(indeed_url, options),
+      client.get(indeed_url, options),
+      client.get(indeed_url, options)
+    ];
+    const zen_res = await Promise.all(clients);
+    const count = zen_res.reduce(
+      (max, res) => Jobs.Extract_Int_Count(res) > max ? Jobs.Extract_Int_Count(res) : max, 0);
 
     return count;
+  }
+
+  static Extract_Int_Count(zen_res)
+  {
+    const zen_data = zen_res.data.class;
+    const count_html = zen_data.replace(/\D/g,'');
+    const count = Number.parseInt(count_html);
+
+    return count;
+  }
+
+  static Encode(terms)
+  {
+    return terms
+      .replaceAll(" ", "+")
+      .replaceAll("(", "%28")
+      .replaceAll(")", "%29");
+  }
+
+  static async Get_Job_Page(query)
+  {
+    const api_key = config.zen_rows_api_key;
+    const client = new ZenRows(api_key);
+    const indeed_url = "https://www.indeed.com/jobs?q=" + Jobs.Encode(query) + "&l=United+States";
+    const zen_res = await client.get(indeed_url);
+    const html = zen_res.data;
+    const count = Jobs.Extract_Count(html);
+
+    return {html, count, indeed_url};
   }
 
   static Extract_Count(res_html)

@@ -8,6 +8,13 @@ function Test_Indeed()
 {
   it('Extract_Count', Extract_Count);
   it('Get_Job_Count', Get_Job_Count);
+  it('Get_Job_Page', Get_Job_Page);
+}
+
+async function Get_Job_Page()
+{
+  const actual0 = await Jobs.Get_Job_Page("react (javascript or html)");
+  assert.ok(actual0);
 }
 
 async function Extract_Count() 

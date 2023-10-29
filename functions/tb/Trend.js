@@ -65,19 +65,33 @@ class Trend
     return db.Select_Value_By_Id("title", "query", query_id);
   }
 
-  static async Select_Stats(db)
+  /**
+   * Get statistics for each query id specified
+   * @static
+   * @param {Db} db - Database object
+   * @param {string[]} query_ids - Array of query IDs
+   * @returns {Stats[]}
+   */
+  static async Select_Stats_By_Query_Ids(db, query_ids)
   {
     let res = null;
 
-    const objs = await Trend.Select_All(db);
-    if (!Utils.isEmpty(objs))
+    if (!Utils.isEmpty(query_ids))
     {
-      res =
+      res = [];
+      for (const query_id of query_ids)
       {
-        count: objs.length,
-        first_time: objs[0].datetime,
-        last_time: objs[objs.length-1].datetime
-      };
+        const entries = await Trend.Select_By_Query_Id(db, query_id);
+        const stats = Trend.Get_Stats(entries);
+        stats.title = await Trend.Get_Query_Title(db, query_id);
+        res.push(stats);
+      }
+    }
+    else
+    {
+      const entries = await Trend.Select_All(db);
+      const stats = Trend.Get_Stats(entries);
+      res = [stats];
     }
 
     return res;
@@ -95,6 +109,33 @@ class Trend
     // should use cache
     const where = [{ field:"query_id", op:"in", value:query_ids }];
     return db.Select_Objs(Trend.table, where);
+  }
+
+  /**
+   * Get Trend objects used to display trend statistics
+   * @static
+   * @param {Entry[]} entries - Array of Trend objects
+   * @returns {Stats}
+   */
+  static Get_Stats(entries)
+  {
+    let stats = null;
+
+    if (!Utils.isEmpty(entries))
+    {
+      entries = Utils.Sort(entries, "datetime");
+
+      stats =
+      {
+        last_entry: entries[entries.length - 1],
+        prev_entry: entries.length == 1 ? entries[0] : entries[entries.length - 2],
+        prev_month_entry: Trend.Get_Prev_Month_Entry(entries),
+        first_entry: entries[0],
+        num_entries: entries.length
+      };
+    }
+
+    return stats;
   }
 
   static async Select_Last_Val(db, query_id)
@@ -138,6 +179,7 @@ class Trend
     entries = await Trend.Select_By_Query_Id(db, query_id);
     if (!Utils.isEmpty(entries))
     {
+      entries = Utils.Sort(entries, "datetime");
       if (entries.length == 1)
         val = entries[0].count;
       else
@@ -153,6 +195,41 @@ class Trend
     }
 
     return val;
+  }
+
+  /**
+   * Return the last Trend entry that occured a month from now
+   * @static
+   * @param {Entry[]} entries - Array of Trend objects that has already been sorted by datetime
+   * @returns {Entry}
+   */
+  static Get_Prev_Month_Entry(entries)
+  {
+    let res = null;
+
+    const millis_per_month = 1000 * 60 * 60 * 24 * 30;
+    const month_start = Date.now() - millis_per_month;
+
+    if (!Utils.isEmpty(entries))
+    {
+      if (entries.length == 1)
+        res = entries[0];
+      else
+      {
+        let entry = null;
+        for (let i = entries.length-1; i > 0; i--)
+        {
+          entry = entries[i-1];
+          if (entry.datetime < month_start)
+          {
+            break;
+          }
+        }
+        res = entry;
+      }
+    }
+
+    return res;
   }
 
   static async Select_First(db, query_id)
@@ -201,6 +278,7 @@ class Trend
 
   /**
    * Get a single Trend object based on the given ID
+   * @static
    * @param {Db} db
    * @param {string} id
    * @returns {Trend}
@@ -299,6 +377,7 @@ class Trend
    * two given trend objects. A Trend object is created for every month within the time span
    * of the two given Trend objects and the count is given a random value based on a linear
    * interpolation of the two Trend objects and with a variance of +/- the error value.
+   * @static
    * @param {Trend} from_entry
    * @param {Trend} to_entry 
    * @param {string} query_id - Query ID to set for all resulting trend objects
@@ -378,20 +457,6 @@ class Trend
   Update(db, on_success_fn)
   {
 
-  }
-
-  static async Select_First_Val(db, query_id)
-  {
-    var vals, val = 0;
-
-    vals = await Trend.Select_By_Query_Id_Async(db, query_id);
-    if (!Util.Empty(vals))
-    {
-      vals = Util.Sort(vals, "datetime");
-      val = vals[0].count;
-    }
-
-    return val;
   }
 }
 

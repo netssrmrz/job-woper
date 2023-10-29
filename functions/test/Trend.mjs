@@ -4,28 +4,11 @@ import Db_Realtime from "../tb/Db_Realtime.mjs"
 import Trend from "../tb/trend.js"
 import config from './config.mjs';
 import trend_data from "./data/trends.mjs";
+import Utils from "../tb/Utils.js";
 
 let db = null, fb_app = null;
 
 describe('class Trend', Trend_Tests);
-
-function Trend_Tests() 
-{
-  this.timeout(5000);
-  before(Init);
-
-  it('Get_Query_Title', Get_Query_Title);
-  it('Select_All', Select_All);
-  it('To_Chart_Vals', To_Chart_Vals);
-  it('Select_Chart_Vals_By_Query_Id', Select_Chart_Vals_By_Query_Id);
-  it('Select_Chart_Vals_By_Query_Ids', Select_Chart_Vals_By_Query_Ids);
-  it('Select_By_Query_Ids', Select_By_Query_Ids);
-  it('Months_In_Range', Months_In_Range);
-  it('Interpolate', Interpolate);
-  it('Insert_Interpolation', Insert_Interpolation);
-
-  after(Cleanup);
-}
 
 function Init()
 {
@@ -42,6 +25,53 @@ function Init()
 function Cleanup()
 {
   fb_app.delete();
+}
+
+function Trend_Tests() 
+{
+  this.timeout(5000);
+  before(Init);
+
+  it('Get_Query_Title', Get_Query_Title);
+  it('Select_All', Select_All);
+  it('To_Chart_Vals', To_Chart_Vals);
+  it('Select_Chart_Vals_By_Query_Id', Select_Chart_Vals_By_Query_Id);
+  it('Select_Chart_Vals_By_Query_Ids', Select_Chart_Vals_By_Query_Ids);
+  it('Select_By_Query_Ids', Select_By_Query_Ids);
+  it('Months_In_Range', Months_In_Range);
+  it('Interpolate', Interpolate);
+  it('Insert_Interpolation', Insert_Interpolation);
+  it('Get_Stats', Get_Stats);
+  it('Get_Prev_Month_Entry', Get_Prev_Month_Entry);
+  it('Select_Stats_By_Query_Ids', Select_Stats_By_Query_Ids);
+
+  after(Cleanup);
+}
+
+async function Select_Stats_By_Query_Ids()
+{
+  let actual = await Trend.Select_Stats_By_Query_Ids(db_mock);
+  assert.ok(actual);
+  assert.equal(actual[0].last_entry.id, "ddd");
+  assert.equal(actual[0].prev_entry.id, "ccc");
+  assert.equal(actual[0].prev_month_entry.id, "aaa");
+  assert.equal(actual[0].first_entry.id, "bbb");
+  assert.equal(actual[0].num_entries, 5);
+
+  actual = await Trend.Select_Stats_By_Query_Ids(db_mock, ["ccc", "ddd", "eee"]);
+  assert.ok(actual);
+  assert.equal(actual.length, 3);
+  assert.equal(actual[0].last_entry.id, "ddd");
+  assert.equal(actual[0].prev_entry.id, "ccc");
+  assert.equal(actual[0].prev_month_entry.id, "aaa");
+  assert.equal(actual[0].first_entry.id, "bbb");
+  assert.equal(actual[0].num_entries, 4);
+  assert.equal(actual[1].last_entry.id, "eee");
+  assert.equal(actual[1].prev_entry.id, "eee");
+  assert.equal(actual[1].prev_month_entry.id, "eee");
+  assert.equal(actual[1].first_entry.id, "eee");
+  assert.equal(actual[1].num_entries, 1);
+  assert.equal(actual[2], null);
 }
 
 async function Get_Query_Title() 
@@ -329,6 +359,162 @@ async function Insert_Interpolation()
   }
 }
 
+function Get_Prev_Month_Entry()
+{
+  let actual = Trend.Get_Prev_Month_Entry(null);
+  assert.equal(actual, null);
+
+  actual = Trend.Get_Prev_Month_Entry([]);
+  assert.equal(actual, null);
+
+  const one_trend =
+  [
+    {
+      id: 0,
+      query_id: "aaa",
+      datetime: (new Date(2022, 0, 1)).getTime(),
+      count: 100,
+    },
+  ];
+  actual = Trend.Get_Prev_Month_Entry(one_trend);
+  assert.equal(actual, one_trend[0]);
+
+  const no_month_trends =
+  [
+    {
+      id: 0,
+      query_id: "aaa",
+      datetime: Date.now() - Utils.MILLIS_DAY,
+      count: 100,
+    },
+    {
+      id: 1,
+      query_id: "aaa",
+      datetime: Date.now(),
+      count: 100,
+    },
+  ];
+  actual = Trend.Get_Prev_Month_Entry(no_month_trends);
+  assert.equal(actual, no_month_trends[0]);
+
+  const month_trends =
+  [
+    {
+      id: 0,
+      query_id: "aaa",
+      datetime: Date.now() - Utils.MILLIS_YEAR,
+      count: 200,
+    },
+    {
+      id: 1,
+      query_id: "aaa",
+      datetime: Date.now(),
+      count: 100,
+    },
+  ];
+  actual = Trend.Get_Prev_Month_Entry(month_trends);
+  assert.equal(actual, month_trends[0]);
+
+  const month_3_trends =
+  [
+    {
+      id: 0,
+      query_id: "aaa",
+      datetime: Date.now() - Utils.MILLIS_YEAR,
+      count: 200,
+    },
+    {
+      id: 1,
+      query_id: "aaa",
+      datetime: Date.now() - Utils.MILLIS_MONTH * 2,
+      count: 100,
+    },
+    {
+      id: 2,
+      query_id: "aaa",
+      datetime: Date.now(),
+      count: 100,
+    },
+  ];
+  actual = Trend.Get_Prev_Month_Entry(month_3_trends);
+  assert.equal(actual, month_3_trends[1]);
+
+  const month_4_trends =
+  [
+    {
+      id: 0,
+      query_id: "aaa",
+      datetime: Date.now() - Utils.MILLIS_YEAR,
+      count: 200,
+    },
+    {
+      id: 1,
+      query_id: "aaa",
+      datetime: Date.now() - Utils.MILLIS_MONTH * 2,
+      count: 100,
+    },
+    {
+      id: 2,
+      query_id: "aaa",
+      datetime: Date.now() - Utils.MILLIS_WEEK,
+      count: 100,
+    },
+    {
+      id: 3,
+      query_id: "aaa",
+      datetime: Date.now(),
+      count: 100,
+    },
+  ];
+  actual = Trend.Get_Prev_Month_Entry(month_4_trends);
+  assert.equal(actual, month_4_trends[1]);
+}
+
+function Get_Stats()
+{
+  let actual = Trend.Get_Stats(null);
+  assert.equal(actual, null);
+
+  actual = Trend.Get_Stats([]);
+  assert.equal(actual, null);
+
+  const trends =
+  [
+    {
+      id: 0,
+      query_id: "aaa",
+      datetime: (new Date(2022, 0, 1)).getTime(),
+      count: 100,
+    },
+    {
+      id: 1,
+      query_id: "aaa",
+      datetime: (new Date(2021, 0, 1)).getTime(),
+      count: 400,
+    },
+    {
+      id: 2,
+      query_id: "aaa",
+      datetime: (new Date(2019, 0, 1)).getTime(),
+      count: 300,
+    },
+    {
+      id: 3,
+      query_id: "aaa",
+      datetime: (new Date(2020, 0, 1)).getTime(),
+      count: 200,
+    },
+  ];
+
+  actual = Trend.Get_Stats(trends);
+  assert.ok(actual != null);
+  assert.equal(actual.last_entry, trends.find(t => t.id == 0));
+  assert.equal(actual.prev_entry, trends.find(t => t.id == 1));
+  assert.equal(actual.prev_month_entry, trends.find(t => t.id == 1));
+  assert.equal(actual.first_entry, trends.find(t => t.id == 2));
+  assert.equal(actual.num_entries, 4);
+}
+
 const db_mock = 
 {
   last_id: 0,
@@ -348,10 +534,61 @@ const db_mock =
       {
         id: "bbb",
         query_id: "ccc",
-        datetime: (new Date(2022, 11, 1)).getTime(),
+        datetime: (new Date(1971, 10, 13)).getTime(),
         count: 100,
-      }    
+      },
+      "ccc": 
+      {
+        id: "ccc",
+        query_id: "ccc",
+        datetime: Date.now() - Utils.MILLIS_WEEK,
+        count: 200,
+      },
+      "eee": 
+      {
+        id: "eee",
+        query_id: "ddd",
+        datetime: Date.now() - Utils.MILLIS_WEEK * 2,
+        count: 200,
+      },
+      "ddd": 
+      {
+        id: "ddd",
+        query_id: "ccc",
+        datetime: Date.now(),
+        count: 300,
+      },
     }
+  },
+
+  To_Db_Order_By: function()
+  {
+
+  },
+
+  Order_By: function()
+  {
+
+  },
+
+  To_Db_Where: function()
+  {
+
+  },
+
+  Where: function(objs, where)
+  {
+    return objs;
+  },
+
+  Select_Objs: function(table_name, where)
+  {
+    // const where = [{ field:"query_id", op:"equalTo", value:query_id }];
+    const objs = this.data[table_name];
+    const obj_array = Object.keys(objs).map(k => objs[k]);
+    const res = this.Where(obj_array, where);
+
+    return res;
   },
 
   Select_Obj_By_Id: function(table_name, id)
@@ -365,5 +602,74 @@ const db_mock =
     trend.id = this.tag + this.last_id;
     this.data[table_name][trend.id] = trend;
     return true;
+  },
+
+  Get_Field_Value: function(obj, where, def_value)
+  {
+    let value = null;
+
+    if (obj && where)
+    {
+      if (where.field_fn)
+      {
+        value = where.field_fn(obj);
+      }
+      else if (where.field)
+      {
+        value = obj[where.field];
+      }
+    }
+
+    return value || def_value;
+  },
+
+  Where: function(data, wheres)
+  {
+    let res = data;
+
+    if (!Utils.isEmpty(data) && !Utils.isEmpty(wheres))
+    {
+      for (const where of wheres)
+      {
+        if (where.op == "array-contains")
+        {
+          res = res.filter(o => this.Get_Field_Value(o, where, []).includes(where.value));
+        }
+        if (where.op == "contains")
+        {
+          res = res.filter(o => this.Get_Field_Value(o, where, "").includes(where.value));
+        }
+        if (where.op == "!=")
+        {
+          res = res.filter(o => this.Get_Field_Value(o, where) != where.value);
+        }
+        if (where.op == "==" || where.op == "equalTo")
+        {
+          res = res.filter(o => this.Get_Field_Value(o, where) == where.value);
+        }
+        if (where.op == ">=")
+        {
+          res = res.filter(o => this.Get_Field_Value(o, where) >= where.value);
+        }
+        if (where.op == "<=")
+        {
+          res = res.filter(o => this.Get_Field_Value(o, where) <= where.value);
+        }
+        if (where.op == ">")
+        {
+          res = res.filter(o => this.Get_Field_Value(o, where) > where.value);
+        }
+        if (where.op == "<")
+        {
+          res = res.filter(o => this.Get_Field_Value(o, where) < where.value);
+        }
+        if (where.op == "filter-fn")
+        {
+          res = res.filter(o => this.Get_Field_Value(o, where));
+        }
+      }
+    }
+
+    return res;
   }
 };
