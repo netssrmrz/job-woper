@@ -11,6 +11,7 @@ class Trend
     this.query_id = null;
     this.datetime = null;
     this.count = null;
+    this.is_interpolation = null;
   }
 
   static async Select_Filters(db, filters)
@@ -334,6 +335,7 @@ class Trend
       trend.query_id = query.id;
       trend.datetime = Date.now();
       trend.count = count;
+      trend.is_interpolation = false;
       res = db.Insert(Trend.table, trend);
       res = true;
     }
@@ -411,7 +413,8 @@ class Trend
         {
           query_id,
           datetime: month,
-          count: count
+          count: count,
+          is_interpolation: true,
         };
         trends.push(trend);
       }

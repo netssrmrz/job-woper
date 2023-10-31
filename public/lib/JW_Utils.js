@@ -27,13 +27,16 @@ class JW_Utils
       const now = Date.now();
       if (exp_time > now)
       {
+        console.log("JW_Utils.Set_Timeouts(): token has not expired");
+
         const token_timeout_millis = exp_time - now;
         document.token_timeout = setTimeout(JW_Utils.On_Timeout, token_timeout_millis);
       }
       else
       {
+        console.log("JW_Utils.Set_Timeouts(): token has expired");
+
         window.open("/index.html", "_top");
-        //console.error("On_Timeout(): go to login");
       }
     }
   }
@@ -61,12 +64,13 @@ class JW_Utils
     const mins_since_last_activity = millis_since_last_activity / Utils.MILLIS_MINUTE;
     if (mins_since_last_activity < 5)
     {
+      console.log("JW_Utils.On_Timeout(): activity detected and token refreshed");
       JW_Utils.Refresh_Token();
     }
     else
     {
-      window.open("/index.html", "_self");
-      //console.error("On_Timeout(): go to login");
+      console.log("JW_Utils.On_Timeout(): no activity detected so login required");
+      window.open("/index.html", "_top");
     }
   }
 

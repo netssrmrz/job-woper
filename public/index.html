@@ -103,6 +103,8 @@
         const user = await Check_Login();
         JW_Utils.Set_User(user);
         
+        speechSynthesis.addEventListener("voiceschanged", On_Voices_Loaded);
+
         if (user)
         {
           window.open("/pages/index.html", "_self");
@@ -269,6 +271,18 @@
         return user;
       }
 
+      function On_Voices_Loaded()
+      {
+        const text = "Shall we play a game?";
+        const voices = window.speechSynthesis.getVoices();
+        const voice = voices.filter(v=>v.lang=="en-US")[0];
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.voice = voice;
+        utterance.pitch = 1;
+        utterance.rate = 1;
+        speechSynthesis.speak(utterance);
+      }
+
       function On_Animation_End()
       {
         headings.classList.remove("shake");
@@ -295,7 +309,7 @@
       <h3>Tracking the fight for I.T. world domination</h3>
     </div>
     <button id="guest_btn">
-      <span>View as Guest</span>
+      <span>Enter as Guest</span>
     </button>
     <hr>
     <button id="sign_in_btn" disabled class="wait">

@@ -4,21 +4,6 @@ class Form_Buddy extends HTMLElement
 {
   static tname = "form-buddy";
 
-  constructor()
-  {
-    super();
-  }
-
-  connectedCallback()
-  {
-    this.Render();
-  }
-
-  static observedAttributes = ["value", "name"];
-  attributeChangedCallback(attr_name, old_value, new_value)
-  {
-  }
-
   Clr_Input()
   {
     const elems = this.querySelectorAll("[name]");
@@ -51,6 +36,15 @@ class Form_Buddy extends HTMLElement
         {
           res[name] = elem.valueAsNumber;
         }
+        else if (elem.type == "datetime-local")
+        {
+          const offset = (new Date()).getTimezoneOffset()*60*1000;
+          res[name] = elem.valueAsNumber + offset;
+        }
+        else if (elem.type == "checkbox")
+        {
+          res[name] = elem.checked;
+        }
         else
         {
           res[name] = value;
@@ -70,9 +64,18 @@ class Form_Buddy extends HTMLElement
       {
         const name = elem.getAttribute("name");
         const value = data[name];
-        if (value == undefined)
+        if (elem.type == "checkbox")
+        {
+          elem.checked = value;
+        }
+        else if (value == undefined)
         {
           elem.value = null;
+        }
+        else if (elem.type == "datetime-local")
+        {
+          const offset = (new Date()).getTimezoneOffset()*60*1000;
+          elem.valueAsNumber = value - offset;
         }
         else
         {
@@ -84,9 +87,6 @@ class Form_Buddy extends HTMLElement
 
   // rendering ==========================================================================
 
-  Render()
-  {
-  }
 }
 
 Utils.Register_Element(Form_Buddy);

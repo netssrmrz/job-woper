@@ -32,6 +32,10 @@
           const view = params.get("view");
           jw_frame.src = "/pages/" + view;
         }
+        else
+        {
+          jw_frame.src = "/pages/dashboard.html";
+        }
       }
     </script>
   </head>
@@ -47,6 +51,6 @@
     <script>(adsbygoogle = window.adsbygoogle || []).push({});</script-->
     
     <jw-header id="jw_header" frame-id="jw_frame"></jw-header>
-    <iframe id="jw_frame" src="/pages/dashboard.html"></iframe>
+    <iframe id="jw_frame"></iframe>
   </body>
 </html>

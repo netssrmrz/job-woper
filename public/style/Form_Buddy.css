@@ -9,3 +9,8 @@ form-buddy label
 {
   text-align: right;
 }
+form-buddy input[type="checkbox"]
+{
+  width: fit-content;
+  margin: 0;
+}
