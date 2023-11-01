@@ -1,24 +1,14 @@
 import assert from "assert";
 import firebase from 'firebase-admin';
-import Db_Realtime from "../tb/Db_Realtime.mjs"
-import Query from "../tb/query.js"
+import Db_Realtime from "../tb/Db_Realtime.mjs";
+import Query from "../tb/Query.js";
+import Trend from "../tb/Trend.js";
 import config from './config.mjs';
+import db_mock from './data/db_mock.mjs';
 
 let db = null, fb_app = null;
 
 describe('class Query', Query_Tests);
-
-function Query_Tests() 
-{
-  this.timeout(5000);
-  before(Init);
-
-  it('Select_By_Title', Select_By_Title);
-  it('Order_By', Order_By);
-  //it('Select_As_Options', Select_As_Options);
-
-  after(Cleanup);
-}
 
 function Init()
 {
@@ -35,6 +25,42 @@ function Init()
 function Cleanup()
 {
   fb_app.delete();
+}
+
+function Query_Tests() 
+{
+  this.timeout(5000);
+  before(Init);
+
+  it('Select_By_Title', Select_By_Title);
+  it('Order_By', Order_By);
+  it('Has_Data_Today', Has_Data_Today);
+  it('Insert_All', Insert_All);
+  //it('Select_As_Options', Select_As_Options);
+
+  after(Cleanup);
+}
+
+async function Insert_All()
+{
+  let prev_ids = db_mock.Get_New_Ids("trend");
+  await Query.Insert_All(db_mock, Trend, Jobs_Mock);
+  let new_ids = db_mock.Get_New_Ids("trend");
+  assert.equal(new_ids.length, prev_ids.length + 1);
+
+  prev_ids = db_mock.Get_New_Ids("trend");
+  await Query.Insert_All(db_mock, Trend, Jobs_Mock);
+  new_ids = db_mock.Get_New_Ids("trend");
+  assert.equal(new_ids.length, prev_ids.length);
+}
+
+async function Has_Data_Today()
+{
+  let actual = await Query.Has_Data_Today(db_mock, Trend, "ccc");
+  assert.ok(actual);
+
+  actual = await Query.Has_Data_Today(db_mock, Trend, "ddd");
+  assert.ok(!actual);
 }
 
 async function Select_By_Title() 
@@ -127,4 +153,12 @@ async function Select_As_Options()
   const expected = "-KpPWAFGBhe6CxLYn22r";
   const msg = 'should match id ' + expected;
   assert.equal(actual.id, expected, msg);
+}
+
+class Jobs_Mock
+{
+  static async Get_Job_Count(query)
+  {
+    return 10;
+  }
 }

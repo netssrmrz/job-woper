@@ -103,7 +103,7 @@
         const user = await Check_Login();
         JW_Utils.Set_User(user);
         
-        speechSynthesis.addEventListener("voiceschanged", On_Voices_Loaded);
+        //speechSynthesis.addEventListener("voiceschanged", On_Voices_Loaded);
 
         if (user)
         {
@@ -115,6 +115,7 @@
           sign_in_btn.disabled = false;
           sign_in_btn.addEventListener("click", On_Click_Sign_In);
 
+          guest_btn.hidden = false;
           guest_btn.addEventListener("click", On_Click_Guest);
 
           //document.body.addEventListener('animationend', On_Animation_End);
@@ -303,15 +304,17 @@
 
   <body>
     <canvas id="canvas"></canvas>
+
     <div id="headings">
       <h1>Job Woper</h1>
       <h4>(War Operation Plan Employment Response)</h4>
       <h3>Tracking the fight for I.T. world domination</h3>
     </div>
-    <button id="guest_btn">
+
+    <button id="guest_btn" hidden>
       <span>Enter as Guest</span>
     </button>
-    <hr>
+    <br>
     <button id="sign_in_btn" disabled class="wait">
       <span>Sign In</span>
       <span>(with Google)</span>

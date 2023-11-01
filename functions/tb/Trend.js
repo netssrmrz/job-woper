@@ -39,7 +39,7 @@ class Trend
     if (order_by?.some(o => o.code == "ORDERBY_QUERY"))
     {
       await Utils.Calc_Values
-        (objs, "query_name", o => Trend.Get_Query_Title(db, o.parent_id));
+        (objs, "query_name", o => Trend.Get_Query_Title(db, o.query_id));
     }
 
     const db_order_by = db.To_Db_Order_By(order_by, 
@@ -139,63 +139,18 @@ class Trend
     return stats;
   }
 
-  static async Select_Last_Val(db, query_id)
+  static async Select_Last_Date(db, query_id)
   {
-    var vals, val = 0;
+    var vals, date = 0;
 
     vals = await Trend.Select_By_Query_Id(db, query_id);
     if (!Utils.isEmpty(vals))
     {
       vals = Utils.Sort(vals, "datetime");
-      val = vals[vals.length - 1].count;
+      date = vals[vals.length - 1].datetime;
     }
 
-    return val;
-  }
-
-  static async Select_Prev_Val(db, query_id)
-  {
-    var vals, val = 0;
-
-    vals = await Trend.Select_By_Query_Id(db, query_id);
-    if (!Utils.isEmpty(vals))
-    {
-      vals = Utils.Sort(vals, "datetime");
-      if (vals.length == 1)
-        val = vals[0].count;
-      else
-        val = vals[vals.length - 2].count;
-    }
-
-    return val;
-  }
-
-  static async Select_Prev_Month_Val(db, query_id)
-  {
-    var entries, val = 0, prev_entry, i;
-
-    const millis_per_month = 1000 * 60 * 60 * 24 * 30;
-    const month_start = Date.now() - millis_per_month;
-
-    entries = await Trend.Select_By_Query_Id(db, query_id);
-    if (!Utils.isEmpty(entries))
-    {
-      entries = Utils.Sort(entries, "datetime");
-      if (entries.length == 1)
-        val = entries[0].count;
-      else
-      {
-        for (i=entries.length-1; i>0; i--)
-        {
-          prev_entry = entries[i-1];
-          if (prev_entry.datetime < month_start)
-            break;
-        }
-        val = entries[i].count;
-      }
-    }
-
-    return val;
+    return date;
   }
 
   /**
@@ -228,20 +183,6 @@ class Trend
         }
         res = entry;
       }
-    }
-
-    return res;
-  }
-
-  static async Select_First(db, query_id)
-  {
-    var vals, res;
-
-    vals = await Trend.Select_By_Query_Id(db, query_id);
-    if (!Utils.isEmpty(vals))
-    {
-      vals = Utils.Sort(vals, "datetime");
-      res = vals[0];
     }
 
     return res;

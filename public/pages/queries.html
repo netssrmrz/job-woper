@@ -35,6 +35,7 @@
             {id: "terms", title: "Search Terms", field_name: "terms"}, 
             {id: "parent", title: "Parent", field_fn: (q) => Trend.Get_Query_Title(q.parent_id)}, 
             {id: "order", title: "Order", field_name: "order"}, 
+            {id: "last", title: "Date of Last Entry", renderAs: "datetime", field_fn: q => Trend.Select_Last_Date(q.id)}, 
           ];
         }
 
@@ -338,6 +339,7 @@
       <li sort-code="ORDERBY_TITLE">Title</li>
       <li sort-code="ORDERBY_PARENT">Parent</li>
       <li sort-code="ORDERBY_ORDER">Order</li>
+      <li sort-code="ORDERBY_LAST">Date of Last Entry</li>
     </sort-buddy>
     <paging-bar id="queries_paging" table-id="queries"></paging-bar>
     <table-buddy id="queries" page-size="10" render-as="tiles"></table-buddy>

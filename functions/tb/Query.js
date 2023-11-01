@@ -31,7 +31,7 @@ class Query
     return objs;
   }
 
-  static async Order_By(db, order_by, objs)
+  static async Order_By(db, order_by, objs, Trend)
   {
     //console.log("Query.Order_By(): order_by =", order_by);
     //console.log("Query.Order_By(): objs =", objs);
@@ -41,22 +41,28 @@ class Query
       await Utils.Calc_Values
         (objs, "parent_name", o => Query.Get_Title(db, o.parent_id));
     }
+    if (order_by?.some(o => o.code == "ORDERBY_LAST"))
+    {
+      await Utils.Calc_Values
+        (objs, "last_date", o => Trend.Select_Last_Date(db, o.id));
+    }
 
     const db_order_by = db.To_Db_Order_By(order_by, 
     [
       {code: "ORDERBY_TITLE",  field: "title", ignore_case: true},
       {code: "ORDERBY_PARENT", field: "parent_name", ignore_case: true},
       {code: "ORDERBY_ORDER",  field: "order"},
+      {code: "ORDERBY_LAST",   field: "last_date"},
     ]);
     db.Order_By(objs, db_order_by);
   }
 
-  static async Select_All(db, where, order_by)
+  static async Select_All(db, Trend, where, order_by)
   {
     //console.log("Query.Select_All(): order_by =", order_by);
 
     const objs = await Query.Select_Filters(db, where);
-    await Query.Order_By(db, order_by, objs);
+    await Query.Order_By(db, order_by, objs, Trend);
 
     return objs;
   }
@@ -96,12 +102,12 @@ class Query
     return db.Select_Obj_By_Id(Query.table, id);
   }
 
-  static async Select_As_Options(db)
+  static async Select_As_Options(db, Trend)
   {
     let options = null;
 
     const order_by = [{code: "ORDERBY_TITLE", dir: "asc"}];
-    const items = await Query.Select_All(db, null, order_by);
+    const items = await Query.Select_All(db, Trend, null, order_by);
     if (!Utils.isEmpty(items))
     {
       options = items.map(item => {return {value: item.id, text: item.title}});
@@ -122,27 +128,48 @@ class Query
 
   static async Insert_All(db, Trend, Jobs)
   {
-    var c, query;
-
     const queries = await Query.Select_All(db);
     console.log("Query.Insert_All: " + queries.length + " queries to process");
-    for (c = 0; c < queries.length; c++)
+    for (const query of queries)
     {
-      query = queries[c];
       console.log("Query.Insert_All: query = " + JSON.stringify(query));
       if (!Utils.isEmpty(query.terms))
       {
-        const insert_ok = await Trend.Insert_By_Query(db, Jobs, query);
-        if (insert_ok)
+        const has_data_today = await Query.Has_Data_Today(db, Trend, query.id);
+        if (!has_data_today)
         {
-          console.log("Query.Insert_All: Query \"" + query.title + "\" updated");
+          const insert_ok = await Trend.Insert_By_Query(db, Jobs, query);
+          if (insert_ok)
+          {
+            console.log("Query.Insert_All: Query \"" + query.title + "\" updated");
+          }
+        }
+        else
+        {
+          console.log("Query.Insert_All: Query \"" + query.title + "\" skipped due to existing data");
         }
       }
       else
       {
-        console.log("Query.Insert_All: Query \""+query.title+"\" skipped due to missing query string");
+        console.log("Query.Insert_All: Query \"" + query.title + "\" skipped due to missing query string");
       }
+      console.log("Query.Insert_All: \"" + queries.length + "\" queries processed");
     }
+  }
+
+  static async Has_Data_Today(db, Trend, id)
+  {
+    let res = null;
+
+    const last_time = await Trend.Select_Last_Date(db, id);
+    if (last_time)
+    {
+      const last_date = new Date(last_time);
+      const today = new Date();
+      res = today.toDateString() == last_date.toDateString();
+    }
+
+    return res;
   }
 
   // legacy =============================================================================
