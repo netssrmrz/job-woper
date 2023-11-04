@@ -106,9 +106,9 @@
         const menu_options =
         [
           { id: 1, title: 'Manage Columns', click: () => trend_columns.showModal()},
-          { id: 2, title: "New", click: trend_dlg.On_New},
-          { id: 3, title: "Interpolate", click: e => On_Click_Interpolate(e, sel_col, trends)},
-          { id: 4, title: "Delete Selected", click: e => On_Click_Delete_Selected(e, sel_col)},
+          { id: 2, title: "New", click: trend_dlg.On_New, visible: JW_Utils.Is_Logged_In()},
+          { id: 3, title: "Interpolate", click: e => On_Click_Interpolate(e, sel_col, trends), visible: JW_Utils.Is_Logged_In()},
+          { id: 4, title: "Delete Selected", click: e => On_Click_Delete_Selected(e, sel_col), visible: JW_Utils.Is_Logged_In()},
         ];
         const menu_elem = new MB_Dlg_Btn();
         menu_elem.options_flat = menu_options;
@@ -120,9 +120,9 @@
       {
         const menu_options =
         [
-          { id: 1, title: "xView", },
-          { id: 2, title: "Edit", click: () => trend_dlg.On_Edit(trend)},
-          { id: 3, title: "xDelete", },
+          //{ id: 1, title: "xView", },
+          { id: 2, title: "Edit", click: () => trend_dlg.On_Edit(trend), visible: JW_Utils.Is_Logged_In()},
+          //{ id: 3, title: "xDelete", visible: JW_Utils.Is_Logged_In()},
         ];
         const menu_elem = new MB_Dlg_Btn();
         menu_elem.options_flat = menu_options;

@@ -416,6 +416,8 @@
 
     async function Show_Trend(query, child_queries)
     {
+      document.getElementById("wait_dlg").style.display = "flex";
+
       JW_Utils.Clr(stats_elem);
       const query_ids = child_queries.map(q => q.id);
       const stats = await Trend.Select_Stats_By_Query_Ids(query_ids);
@@ -444,6 +446,8 @@
       JW_Utils.Hide(curve_chart);
       JW_Utils.Show(stats_elem);
       view_chart_button.disabled = false;
+
+      document.getElementById("wait_dlg").style.display = "none";
     }
 
     function Init_Chart()
@@ -466,6 +470,7 @@
     async function Draw_Chart_By_Query_Ids(db, ids, single_query, is_relative)
     {
       document.getElementById("wait_dlg").style.display = "flex";
+
       const data_vals = await Trend.Select_Chart_Vals_By_Query_Ids(db, ids);
       if (Utils.isEmpty(data_vals))
         document.getElementById("no_data").show();
@@ -479,14 +484,7 @@
             data_val[0] = new Date(data_val[0]);
           }
         }
-
-        /*if (chart_data == null || single_query)
-          chart_data = Copy_Data(data_vals);
-        else
-          Merge_Data(chart_data, data_vals);*/
-        chart_data = data_vals;
-
-        Draw_Chart(chart_data, is_relative);
+        Draw_Chart(data_vals, is_relative);
       }
 
       document.getElementById("wait_dlg").style.display = "none";

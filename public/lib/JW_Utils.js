@@ -41,6 +41,26 @@ class JW_Utils
     }
   }
 
+  /**
+   * Indicates whether a user is logged in or not.
+   * @static
+   * @returns {boolean}
+   */
+  static Is_Logged_In()
+  {
+    let res = false;
+
+    const user = JW_Utils.Get_User();
+    if (user)
+    {
+      const exp_time = user.stsTokenManager.expirationTime;
+      const now = Date.now();
+      res = exp_time > now;
+    }
+
+    return res;
+  }
+
   static async Refresh_Token()
   {
     const user = JW_Utils.Get_User();

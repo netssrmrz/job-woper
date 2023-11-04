@@ -12,17 +12,17 @@
     </style>
 
     <script type="module">
-      import Utils from "/lib/Utils.js";
-      import JW_Utils from "/lib/JW_Utils.js";
-      import "/node_modules/table-buddy/Table_Buddy.mjs";
-      import "/node_modules/table-buddy/Paging_Bar.mjs";
-      import Datasource from "/node_modules/table-buddy/Datasource.mjs";
-      import MB_Dlg_Btn from "/node_modules/menu-buddy/MB_Dlg_Btn.mjs";
-      import Filter_Buddy from "/node_modules/filter-buddy/Filter_Buddy.mjs";
-      import "/component/Sort_Buddy.mjs";
-      import "/component/Input_Span.mjs";
-      import "/component/Select_Columns.mjs";
-      import "/component/Form_Buddy.mjs";
+      import Utils from "../lib/Utils.js";
+      import JW_Utils from "../lib/JW_Utils.js";
+      import "../node_modules/table-buddy/Table_Buddy.mjs";
+      import "../node_modules/table-buddy/Paging_Bar.mjs";
+      import Datasource from "../node_modules/table-buddy/Datasource.mjs";
+      import MB_Dlg_Btn from "../node_modules/menu-buddy/MB_Dlg_Btn.mjs";
+      import Filter_Buddy from "../node_modules/filter-buddy/Filter_Buddy.mjs";
+      import "../component/Sort_Buddy.mjs";
+      import "../component/Input_Span.mjs";
+      import "../component/Select_Columns.mjs";
+      import "../component/Form_Buddy.mjs";
 
       class Queries_Datasource extends Datasource.Client_Paging 
       {
@@ -110,8 +110,18 @@
         const menu_options =
         [
           { id: 1, title: 'Manage Columns', click: () => query_columns.showModal()},
-          { id: 2, title: "New", click: On_Click_New},
-          { id: 3, title: "Insert All Query Trends", click: On_Click_Update_All},
+          { 
+            id: 2, 
+            title: "New", 
+            click: On_Click_New,
+            visible: JW_Utils.Is_Logged_In()
+          },
+          { 
+            id: 3, 
+            title: "Insert All Query Trends", 
+            click: On_Click_Update_All,
+            visible: JW_Utils.Is_Logged_In()
+          },
           //{ id: 3, title: "xDelete Selected"},
         ];
         const menu_elem = new MB_Dlg_Btn();
@@ -128,12 +138,12 @@
           //{ id: 2, title: "xView Trend Data", },
           //{ id: 3, title: "xView Chart", },
           { id: 4, title: "View Jobs", click: () => On_Click_View_Jobs(query)},
-          { id: 5, title: "Add Query", click: () => On_Click_Add(query)},
-          { id: 5, title: "Edit", click: () => On_Click_Edit(query)},
-          { id: 6, title: "Delete", click: () => On_Click_Delete(query)},
-          { id: 7, title: "Extract Job Count", click: () => On_Click_Execute(query)},
-          { id: 8, title: "Extract Job Page", click: () => On_Click_Page(query)},
-          { id: 9, title: "Update Job Count", click: () => On_Click_Update(query)},
+          { id: 5, title: "Add Query", click: () => On_Click_Add(query), visible: JW_Utils.Is_Logged_In()},
+          { id: 5, title: "Edit", click: () => On_Click_Edit(query), visible: JW_Utils.Is_Logged_In()},
+          { id: 6, title: "Delete", click: () => On_Click_Delete(query), visible: JW_Utils.Is_Logged_In()},
+          { id: 7, title: "Extract Job Count", click: () => On_Click_Execute(query), visible: JW_Utils.Is_Logged_In()},
+          { id: 8, title: "Extract Job Page", click: () => On_Click_Page(query), visible: JW_Utils.Is_Logged_In()},
+          { id: 9, title: "Update Job Count", click: () => On_Click_Update(query), visible: JW_Utils.Is_Logged_In()},
         ];
         const menu_elem = new MB_Dlg_Btn();
         menu_elem.options_flat = menu_options;
@@ -350,6 +360,7 @@
       <li col-id="terms">Search Terms</li>
       <li col-id="parent">Parent</li>
       <li col-id="order">Order #</li>
+      <li col-id="last">Date of Last Entry</li>
     </select-columns>
 
     <dialog id="count_dlg">
