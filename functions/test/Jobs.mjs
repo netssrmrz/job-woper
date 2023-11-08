@@ -1,6 +1,7 @@
 import assert from 'assert';
 import fs from "fs";
 import Jobs from "../tb/Jobs.js";
+import zenrows_mock from "./data/zenrows_mock.mjs";
 
 describe('class Jobs', Test_Indeed);
 
@@ -13,35 +14,44 @@ function Test_Indeed()
 
 async function Get_Job_Page()
 {
-  const actual0 = await Jobs.Get_Job_Page("react (javascript or html)");
-  assert.ok(actual0);
+  const res_html = fs.readFileSync("./functions/test/data/indeed3.html").toString();
+
+  const actual = await Jobs.Get_Job_Page(zenrows_mock, "page");
+  assert.ok(actual);
+  assert.equal(actual.count, 3);
+  assert.equal(actual.html, res_html);
+  assert.ok(actual.indeed_url.includes("q=page"));
 }
 
 async function Extract_Count() 
 {
-  this.timeout(5000);
   let msg, expected, res_html, actual;
 
   msg = 'should return a non-zero value when able to extract the job count';
   expected = 3;
-  res_html = fs.readFileSync("./test/data/indeed3.html").toString();
+  res_html = fs.readFileSync("./functions/test/data/indeed3.html").toString();
   actual = await Jobs.Extract_Count(res_html);
   assert.equal(actual, expected, msg);
 
   msg = 'should return a non-zero value when able to extract the job count';
   expected = 4;
-  res_html = fs.readFileSync("./test/data/indeed4.html").toString();
+  res_html = fs.readFileSync("./functions/test/data/indeed4.html").toString();
   actual = await Jobs.Extract_Count(res_html);
   assert.equal(actual, expected, msg);
 }
 
 async function Get_Job_Count()
 {
-  this.timeout(10000);
-
   let msg = 'should extract the job count via an HTTP fetch';
   let query_str = "c%23";
-  let actual = await Jobs.Get_Job_Count(query_str);
-  assert.equal(actual > 0, true, msg);
-  console.log("count =", actual);
+  let actual = await Jobs.Get_Job_Count(zenrows_mock, query_str);
+  assert.equal(actual, 10, msg);
+
+  query_str = "null";
+  actual = await Jobs.Get_Job_Count(zenrows_mock, query_str);
+  assert.equal(actual, 0, msg);
+
+  query_str = "error";
+  actual = await Jobs.Get_Job_Count(zenrows_mock, query_str);
+  assert.equal(actual, null, msg);
 }

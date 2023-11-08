@@ -9,6 +9,11 @@ import Query from './tb/Query.js';
 import Utils from './tb/Utils.js';
 import Jobs from './tb/Jobs.js';
 import Admin from './tb/Admin.js';
+import {ZenRows} from "zenrows";
+import config from "./config.mjs";
+
+const api_key = config.zen_rows_api_key;
+const zenrows = new ZenRows(api_key);
 
 firebase.initializeApp();
 const fb_db = firebase.database();
@@ -38,7 +43,7 @@ const rpc_buddy = new RPC_Buddy
     {name: "Trend.Select_Chart_Vals_By_Query_Ids", inject: [db]}, 
     {name: "Trend.Select_Last_Date", inject: [db]}, 
     {name: "Trend.Delete_By_Ids", inject: [db], on_auth_fn}, 
-    {name: "Trend.Insert_By_Query", inject: [db, Jobs], on_auth_fn}, 
+    {name: "Trend.Insert_By_Query", inject: [db, Jobs, zenrows], on_auth_fn}, 
     {name: "Trend.Save", inject: [db], on_auth_fn}, 
     {name: "Trend.Insert_Interpolation", inject: [db], on_auth_fn}, 
     
@@ -50,10 +55,10 @@ const rpc_buddy = new RPC_Buddy
     {name: "Query.Select_As_Options", inject: [db, Trend]}, 
     {name: "Query.Save", inject: [db], on_auth_fn}, 
     {name: "Query.Delete", inject: [db], on_auth_fn}, 
-    {name: "Query.Insert_All", inject: [db, Trend, Jobs], on_auth_fn}, 
+    {name: "Query.Insert_All", inject: [db, Trend, Jobs, zenrows], on_auth_fn}, 
 
-    {name: "Jobs.Get_Job_Count", on_auth_fn}, 
-    {name: "Jobs.Get_Job_Page", on_auth_fn}, 
+    {name: "Jobs.Get_Job_Count", inject: [zenrows], on_auth_fn}, 
+    {name: "Jobs.Get_Job_Page", inject: [zenrows], on_auth_fn}, 
 
     {name: "Admin.Refresh_Token", on_auth_fn}, 
   ],
@@ -82,7 +87,7 @@ const schedule_options =
 export const updateAllTrendsScheduled = 
   functions
     .scheduler
-    .onSchedule(schedule_options, () => Query.Insert_All(db, Trend, Jobs));
+    .onSchedule(schedule_options, () => Query.Insert_All(db, Trend, Jobs, zenrows));
 
 const schedule_options_2 = 
 {
@@ -94,5 +99,5 @@ const schedule_options_2 =
 export const updateAllTrendsScheduled2 = 
   functions
     .scheduler
-    .onSchedule(schedule_options_2, () => Query.Insert_All(db, Trend, Jobs));
+    .onSchedule(schedule_options_2, () => Query.Insert_All(db, Trend, Jobs, zenrows));
     

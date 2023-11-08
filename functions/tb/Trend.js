@@ -84,7 +84,10 @@ class Trend
       {
         const entries = await Trend.Select_By_Query_Id(db, query_id);
         const stats = Trend.Get_Stats(entries);
-        stats.title = await Trend.Get_Query_Title(db, query_id);
+        if (stats)
+        {
+          stats.title = await Trend.Get_Query_Title(db, query_id);
+        }
         res.push(stats);
       }
     }
@@ -265,11 +268,11 @@ class Trend
     return vals;
   }
 
-  static async Insert_By_Query(db, Jobs, query)
+  static async Insert_By_Query(db, Jobs, zenrows, query)
   {
     let res = null;
 
-    const count = await Jobs.Get_Job_Count(query.terms);
+    const count = await Jobs.Get_Job_Count(zenrows, query.terms);
     if (count)
     {
       const trend = new Trend();

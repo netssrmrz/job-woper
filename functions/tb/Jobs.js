@@ -1,6 +1,4 @@
 ﻿import Utils from "./Utils.js";
-import config from "../config.mjs";
-import {ZenRows} from "zenrows";
 
 class Jobs
 {
@@ -9,7 +7,6 @@ class Jobs
     var path;
     const pub_id = "???";
 
-    //console.log("Jobs.Get_Job_Count: query =", query);
     path =
       "/ads/apisearch?" +
       "publisher=" + pub_id + "&" +
@@ -106,10 +103,10 @@ class Jobs
     return count;
   }
 
-  static async Get_Job_Count(query)
+  static async Get_Job_Count(zenrows, query)
   {
-    const api_key = config.zen_rows_api_key;
-    const client = new ZenRows(api_key);
+    let count = null;
+
     const indeed_url = "https://www.indeed.com/jobs?q=" + Jobs.Encode(query) + "&l=United+States";
     const options =
     {
@@ -120,24 +117,38 @@ class Jobs
 
     const clients = 
     [
-      client.get(indeed_url, options),
-      client.get(indeed_url, options),
-      client.get(indeed_url, options),
-      client.get(indeed_url, options),
-      client.get(indeed_url, options)
+      zenrows.get(indeed_url, options),
+      zenrows.get(indeed_url, options),
+      zenrows.get(indeed_url, options),
+      zenrows.get(indeed_url, options),
+      zenrows.get(indeed_url, options)
     ];
-    const zen_res = await Promise.all(clients);
-    const count = zen_res.reduce(
-      (max, res) => Jobs.Extract_Int_Count(res) > max ? Jobs.Extract_Int_Count(res) : max, 0);
+
+    try
+    {
+      const zen_res = await Promise.all(clients);
+      count = zen_res.reduce(
+        (max, res) => Jobs.Extract_Int_Count(res) > max ? Jobs.Extract_Int_Count(res) : max, 0);
+    }
+    catch (error)
+    {
+      console.error("Jobs.Get_Job_Count(): ", error);
+      count = null;
+    }
 
     return count;
   }
 
   static Extract_Int_Count(zen_res)
   {
-    const zen_data = zen_res.data.class;
-    const count_html = zen_data.replace(/\D/g,'');
-    const count = Number.parseInt(count_html);
+    let count = null;
+    
+    if (zen_res?.data?.class)
+    {
+      const zen_data = zen_res.data.class;
+      const count_html = zen_data.replace(/\D/g,'');
+      count = Number.parseInt(count_html);
+    }
 
     return count;
   }
@@ -150,12 +161,10 @@ class Jobs
       .replaceAll(")", "%29");
   }
 
-  static async Get_Job_Page(query)
+  static async Get_Job_Page(zenrows, query)
   {
-    const api_key = config.zen_rows_api_key;
-    const client = new ZenRows(api_key);
     const indeed_url = "https://www.indeed.com/jobs?q=" + Jobs.Encode(query) + "&l=United+States";
-    const zen_res = await client.get(indeed_url);
+    const zen_res = await zenrows.get(indeed_url);
     const html = zen_res.data;
     const count = Jobs.Extract_Count(html);
 

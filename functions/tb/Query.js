@@ -126,7 +126,7 @@ class Query
     return db.Delete(Query.table, id);
   }
 
-  static async Insert_All(db, Trend, Jobs)
+  static async Insert_All(db, Trend, Jobs, zenrows)
   {
     const queries = await Query.Select_All(db);
     console.log("Query.Insert_All: " + queries.length + " queries to process");
@@ -138,10 +138,14 @@ class Query
         const has_data_today = await Query.Has_Data_Today(db, Trend, query.id);
         if (!has_data_today)
         {
-          const insert_ok = await Trend.Insert_By_Query(db, Jobs, query);
+          const insert_ok = await Trend.Insert_By_Query(db, Jobs, zenrows, query);
           if (insert_ok)
           {
             console.log("Query.Insert_All: Query \"" + query.title + "\" updated");
+          }
+          else
+          {
+            console.warning("Query.Insert_All: Query \"" + query.title + "\" error");
           }
         }
         else
@@ -159,7 +163,7 @@ class Query
 
   static async Has_Data_Today(db, Trend, id)
   {
-    let res = null;
+    let res = false;
 
     const last_time = await Trend.Select_Last_Date(db, id);
     if (last_time)

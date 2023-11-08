@@ -3,8 +3,10 @@ import firebase from 'firebase-admin';
 import Db_Realtime from "../tb/Db_Realtime.mjs";
 import Query from "../tb/Query.js";
 import Trend from "../tb/Trend.js";
+import Jobs from "../tb/Jobs.js";
 import config from './config.mjs';
 import db_mock from './data/db_mock.mjs';
+import zenrows_mock from './data/zenrows_mock.mjs';
 
 let db = null, fb_app = null;
 
@@ -36,22 +38,21 @@ function Query_Tests()
   it('Order_By', Order_By);
   it('Has_Data_Today', Has_Data_Today);
   it('Insert_All', Insert_All);
-  //it('Select_As_Options', Select_As_Options);
+  it('Select_As_Options', Select_As_Options);
 
   after(Cleanup);
 }
 
 async function Insert_All()
 {
-  let prev_ids = db_mock.Get_New_Ids("trend");
-  await Query.Insert_All(db_mock, Trend, Jobs_Mock);
+  db_mock.Reset();
+  await Query.Insert_All(db_mock, Trend, Jobs, zenrows_mock);
   let new_ids = db_mock.Get_New_Ids("trend");
-  assert.equal(new_ids.length, prev_ids.length + 1);
+  assert.equal(new_ids.length, 2);
 
-  prev_ids = db_mock.Get_New_Ids("trend");
-  await Query.Insert_All(db_mock, Trend, Jobs_Mock);
+  await Query.Insert_All(db_mock, Trend, Jobs, zenrows_mock);
   new_ids = db_mock.Get_New_Ids("trend");
-  assert.equal(new_ids.length, prev_ids.length);
+  assert.equal(new_ids.length, 2, "# of new ids should not change");
 }
 
 async function Has_Data_Today()
@@ -65,8 +66,8 @@ async function Has_Data_Today()
 
 async function Select_By_Title() 
 {
-  const actual = await Query.Select_By_Title(db, "Polymer");
-  const expected = "-KpPWAFGBhe6CxLYn22r";
+  const actual = await Query.Select_By_Title(db_mock, "React");
+  const expected = "ccc";
   const msg = 'should match id ' + expected;
   assert.equal(actual.id, expected, msg);
 }
@@ -149,16 +150,13 @@ async function Order_By()
 
 async function Select_As_Options()
 {
-  const actual = await Query.Select_As_Options(db);
-  const expected = "-KpPWAFGBhe6CxLYn22r";
-  const msg = 'should match id ' + expected;
-  assert.equal(actual.id, expected, msg);
-}
-
-class Jobs_Mock
-{
-  static async Get_Job_Count(query)
-  {
-    return 10;
-  }
+  const actual = await Query.Select_As_Options(db_mock, Trend);
+  assert.ok(actual);
+  assert.equal(actual.length, 3);
+  assert.equal(actual[0].value, "ccc");
+  assert.equal(actual[1].value, "ddd");
+  assert.equal(actual[2].value, "eee");
+  assert.equal(actual[0].text, "React");
+  assert.equal(actual[1].text, "Angular");
+  assert.equal(actual[2].text, "Vue");
 }

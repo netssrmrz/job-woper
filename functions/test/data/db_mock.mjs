@@ -23,7 +23,15 @@ const db_mock =
         terms: "angular",
         order: null,
         parent_id: null,
-      }
+      },
+      "eee":
+      {
+        id: "eee",
+        title: "Vue",
+        terms: "vue",
+        order: null,
+        parent_id: null,
+      },
     },
     "trend": 
     {
@@ -62,6 +70,13 @@ const db_mock =
         datetime: Date.now(),
         count: 300,
       },
+      /*"fff": 
+      {
+        id: "fff",
+        query_id: "eee",
+        datetime: Date.now() - Utils.MILLIS_WEEK * 3,
+        count: 300,
+      },*/
     }
   },
 
@@ -191,7 +206,43 @@ const db_mock =
     const new_ids = ids.filter(id => id.startsWith("new_"));  
 
     return new_ids;
-  }
+  },
+
+  Remove_New_Ids(table_name)
+  {
+    const ids = this.Get_New_Ids(table_name);
+    for (const id of ids)
+    {
+      delete this.data[table_name][id];
+    }
+
+    return ids;
+  },
+
+  Reset()
+  {
+    this.Remove_New_Ids("query");
+    this.Remove_New_Ids("trend");
+  },
+  
+  Select_Value_By_Id(field_name, table_name, id)
+  {
+    const obj = this.Select_Obj_By_Id(table_name, id);
+    return obj ? obj[field_name]: null;
+  },
+
+  Select_Obj(from, where)
+  {
+    let obj = null;
+
+    const objs = this.Select_Objs(from, where);
+    if (objs)
+    {
+      obj = objs[0];
+    }
+      
+    return obj;
+  },
 };
 
 export default db_mock;

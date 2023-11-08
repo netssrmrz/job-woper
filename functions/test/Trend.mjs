@@ -1,10 +1,13 @@
 import assert from "assert";
 import firebase from 'firebase-admin';
-import Db_Realtime from "../tb/Db_Realtime.mjs"
-import Trend from "../tb/trend.js"
+import Db_Realtime from "../tb/Db_Realtime.mjs";
+import Trend from "../tb/Trend.js";
+import Jobs from "../tb/Jobs.js";
 import config from './config.mjs';
 import trend_data from "./data/trends.mjs";
 import Utils from "../tb/Utils.js";
+import zenrows_mock from "./data/zenrows_mock.mjs";
+import db_mock from "./data/db_mock.mjs";
 
 let db = null, fb_app = null;
 
@@ -44,12 +47,32 @@ function Trend_Tests()
   it('Get_Stats', Get_Stats);
   it('Get_Prev_Month_Entry', Get_Prev_Month_Entry);
   it('Select_Stats_By_Query_Ids', Select_Stats_By_Query_Ids);
+  it('Insert_By_Query', Insert_By_Query);
 
   after(Cleanup);
 }
 
+async function Insert_By_Query()
+{
+  const query =
+  {
+    id: "somequeryid",
+    terms: "react"
+  };
+  db_mock.Reset();
+
+  let actual = await Trend.Insert_By_Query(db_mock, Jobs, zenrows_mock, query);
+  const ids = db_mock.Get_New_Ids("trend");
+  const trend = db_mock.data.trend[ids[0]];
+  assert.ok(actual);
+  assert.equal(ids.length, 1);
+  assert.equal(trend.query_id, query.id);
+  assert.equal(trend.count, 10);
+}
+
 async function Select_Stats_By_Query_Ids()
 {
+  db_mock.Reset();
   let actual = await Trend.Select_Stats_By_Query_Ids(db_mock);
   assert.ok(actual);
   assert.equal(actual[0].last_entry.id, "ddd");
@@ -333,24 +356,27 @@ function Interpolate()
 
 async function Insert_Interpolation()
 {
-  db_mock.tag = "ii1_";
-  let from_id = "aaa", to_id = "bbb", query_id = "ccc", error = 50;
+  db_mock.Reset();
+  let from_id = "bbb", to_id = "aaa", query_id = "ccc", error = 5;
   let actual = await Trend.Insert_Interpolation(db_mock, from_id, to_id, query_id, error);
   let mock_trends = db_mock.data[Trend.table];
-  let mock_ids = Object.keys(mock_trends);
-  let new_ids = mock_ids.filter(id => id.startsWith("ii1_"));
+  let new_ids = db_mock.Get_New_Ids(Trend.table);
   assert.ok(actual);
-  assert.equal(new_ids.length, 10);
+  assert.equal(new_ids.length, 601);
   const from_entry = mock_trends[from_id];
   const to_entry = mock_trends[to_id];
-  let min_count = from_entry.count - error;
-  let max_count = to_entry.count + error;
+  let min_count = to_entry.count - error;
+  let max_count = from_entry.count + error;
   for (const new_id of new_ids)
   {
     const trend = mock_trends[new_id];
+    const msg = 
+      from_entry.datetime.toLocaleString() + " < " + 
+      trend.datetime.toLocaleString() + " < " + 
+      to_entry.datetime.toLocaleString();
     assert.equal(trend.id, new_id);
     assert.equal(trend.query_id, query_id);
-    assert.ok(trend.datetime > from_entry.datetime && trend.datetime < to_entry.datetime);
+    assert.ok(trend.datetime > from_entry.datetime && trend.datetime < to_entry.datetime, msg);
     assert.ok
     (
       trend.count >= min_count && trend.count < max_count,
@@ -514,162 +540,3 @@ function Get_Stats()
   assert.equal(actual.first_entry, trends.find(t => t.id == 2));
   assert.equal(actual.num_entries, 4);
 }
-
-const db_mock = 
-{
-  last_id: 0,
-  tag: "new_",
-  data:
-  {
-    "trend": 
-    {
-      "aaa":
-      {
-        id: "aaa",
-        query_id: "ccc",
-        datetime: (new Date(2022, 0, 1)).getTime(),
-        count: 0,
-      },
-      "bbb": 
-      {
-        id: "bbb",
-        query_id: "ccc",
-        datetime: (new Date(1971, 10, 13)).getTime(),
-        count: 100,
-      },
-      "ccc": 
-      {
-        id: "ccc",
-        query_id: "ccc",
-        datetime: Date.now() - Utils.MILLIS_WEEK,
-        count: 200,
-      },
-      "eee": 
-      {
-        id: "eee",
-        query_id: "ddd",
-        datetime: Date.now() - Utils.MILLIS_WEEK * 2,
-        count: 200,
-      },
-      "ddd": 
-      {
-        id: "ddd",
-        query_id: "ccc",
-        datetime: Date.now(),
-        count: 300,
-      },
-    }
-  },
-
-  To_Db_Order_By: function()
-  {
-
-  },
-
-  Order_By: function()
-  {
-
-  },
-
-  To_Db_Where: function()
-  {
-
-  },
-
-  Where: function(objs, where)
-  {
-    return objs;
-  },
-
-  Select_Objs: function(table_name, where)
-  {
-    // const where = [{ field:"query_id", op:"equalTo", value:query_id }];
-    const objs = this.data[table_name];
-    const obj_array = Object.keys(objs).map(k => objs[k]);
-    const res = this.Where(obj_array, where);
-
-    return res;
-  },
-
-  Select_Obj_By_Id: function(table_name, id)
-  {
-    return this.data[table_name][id];
-  },
-
-  Save: function(table_name, trend)
-  {
-    ++this.last_id;
-    trend.id = this.tag + this.last_id;
-    this.data[table_name][trend.id] = trend;
-    return true;
-  },
-
-  Get_Field_Value: function(obj, where, def_value)
-  {
-    let value = null;
-
-    if (obj && where)
-    {
-      if (where.field_fn)
-      {
-        value = where.field_fn(obj);
-      }
-      else if (where.field)
-      {
-        value = obj[where.field];
-      }
-    }
-
-    return value || def_value;
-  },
-
-  Where: function(data, wheres)
-  {
-    let res = data;
-
-    if (!Utils.isEmpty(data) && !Utils.isEmpty(wheres))
-    {
-      for (const where of wheres)
-      {
-        if (where.op == "array-contains")
-        {
-          res = res.filter(o => this.Get_Field_Value(o, where, []).includes(where.value));
-        }
-        if (where.op == "contains")
-        {
-          res = res.filter(o => this.Get_Field_Value(o, where, "").includes(where.value));
-        }
-        if (where.op == "!=")
-        {
-          res = res.filter(o => this.Get_Field_Value(o, where) != where.value);
-        }
-        if (where.op == "==" || where.op == "equalTo")
-        {
-          res = res.filter(o => this.Get_Field_Value(o, where) == where.value);
-        }
-        if (where.op == ">=")
-        {
-          res = res.filter(o => this.Get_Field_Value(o, where) >= where.value);
-        }
-        if (where.op == "<=")
-        {
-          res = res.filter(o => this.Get_Field_Value(o, where) <= where.value);
-        }
-        if (where.op == ">")
-        {
-          res = res.filter(o => this.Get_Field_Value(o, where) > where.value);
-        }
-        if (where.op == "<")
-        {
-          res = res.filter(o => this.Get_Field_Value(o, where) < where.value);
-        }
-        if (where.op == "filter-fn")
-        {
-          res = res.filter(o => this.Get_Field_Value(o, where));
-        }
-      }
-    }
-
-    return res;
-  }
-};
