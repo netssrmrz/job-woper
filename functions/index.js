@@ -76,10 +76,23 @@ const schedule_options =
 {
   region: ["australia-southeast1"],
   timeoutSeconds: 540,
-  schedule: 'every day 11:30',
+  schedule: 'every day 01:00',
   timeZone: "Australia/Sydney"
 };
 export const updateAllTrendsScheduled = 
   functions
     .scheduler
     .onSchedule(schedule_options, () => Query.Insert_All(db, Trend, Jobs));
+
+const schedule_options_2 = 
+{
+  region: ["australia-southeast1"],
+  timeoutSeconds: 540,
+  schedule: 'every day 13:00',
+  timeZone: "Australia/Sydney"
+};
+export const updateAllTrendsScheduled2 = 
+  functions
+    .scheduler
+    .onSchedule(schedule_options_2, () => Query.Insert_All(db, Trend, Jobs));
+    

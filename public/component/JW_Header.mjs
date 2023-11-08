@@ -57,6 +57,11 @@ class JW_Header extends HTMLElement
     this.frame.src = "/pages/queries.html";
   }
 
+  On_Click_View_Blog()
+  {
+    this.frame.src = "/pages/blog.html";
+  }
+
   On_Click_View_Data()
   {
     this.frame.src = "/pages/trends.html";
@@ -96,6 +101,7 @@ class JW_Header extends HTMLElement
       { id: 2, title: "View Queries", click: this.On_Click_View_Queries},
       { id: 3, title: "View Data", click: this.On_Click_View_Data},
       { id: 4, title: "View Charts", click: this.On_Click_View_Charts},
+      { id: 4, title: "View Blog", click: this.On_Click_View_Blog},
       { id: 5, title: "Sign In", click: this.On_Click_View_Sign_In},
       { id: 6, title: "Sign Out", click: this.On_Click_Sign_Out},
     ];

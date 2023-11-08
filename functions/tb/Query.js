@@ -153,8 +153,8 @@ class Query
       {
         console.log("Query.Insert_All: Query \"" + query.title + "\" skipped due to missing query string");
       }
-      console.log("Query.Insert_All: \"" + queries.length + "\" queries processed");
     }
+    console.log("Query.Insert_All: \"" + queries.length + "\" queries processed");
   }
 
   static async Has_Data_Today(db, Trend, id)
