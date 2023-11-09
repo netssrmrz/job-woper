@@ -63,39 +63,77 @@ export class QueryMenuItem extends PolymerElement
         <iron-icon id="open_icon" icon="arrow-drop-down" class="menu_icon" hidden></iron-icon>
         <iron-icon id="close_icon" icon="arrow-drop-up" class="menu_icon" hidden></iron-icon>
         <span id="title"></span>
+        <paper-checkbox id="checkbox" hidden></paper-checkbox>
+        <paper-icon-button id="menu_btn" icon="menu" hidden></paper-icon-button>
+        <paper-icon-button id="summ_btn" icon="trending-up" hidden></paper-icon-button>
       </a>
+      <iron-collapse id="list_elem" hidden></iron-collapse>
     `;
   }
 
   ready() 
   {
     super.ready();
-    this.Render(this.query, this.db);
+    this.Render(this.query);
   }
 
-  async Render(query, db) 
+  set checked_ids(ids)
   {
-    if (query)
+    if (this.Is_Menu())
     {
-      this.Render_Title(query.title);
-      this.Render_Query(query.id, db);
+      for (const elem of this.$.list_elem.children)
+        elem.checked_ids = ids;
     }
-    else
+    else if (this?.query?.id && ids.includes(this.query.id))
     {
-      this.Render_Title("Technologies");
-      await this.Render_Query(null, db);
-      this.$.list_elem.show();
+      this.$.checkbox.checked = true;
     }
   }
 
-  async Render_Query(query_id, db)
+  set On_Get_Children(fn)
   {
-    this.child_queries = await window.Query.Select_Children_By_Id(query_id);
+    this.On_Get_Children_Fn = fn;
+    if (this.isConnected)
+    {
+      this.Render(this.query);
+    }
+  }
+
+  get On_Get_Children()
+  {
+    return this.On_Get_Children_Fn;
+  }
+
+  Render(query) 
+  {
+    if (this.On_Get_Children)
+    {
+      if (query)
+      {
+        this.Render_Title(query.title);
+        this.Render_Query(query.id);
+      }
+      else
+      {
+        this.Render_Title("Technologies");
+        this.Render_Query(null);
+        this.$.list_elem.show();
+      }
+    }
+  }
+
+  Render_Query(query_id)
+  {
+    if (this.On_Get_Children)
+    {
+      this.child_queries = this.On_Get_Children(query_id);
+    }
+
     if (this.child_queries && this.child_queries.length > 0)
     {
       const is_home_menu = query_id == null;
       this.is_menu = true;
-      this.Render_Items(is_home_menu, db);
+      this.Render_Items(is_home_menu);
     }
     else
     {
@@ -111,53 +149,40 @@ export class QueryMenuItem extends PolymerElement
 
   Render_Item()
   {
-    const checkbox_elem = document.createElement("paper-checkbox");
-    checkbox_elem.id = "checkbox";
-    checkbox_elem.query = this.query;
-    checkbox_elem.onclick = this.On_Choose_Chart;
-    this.$.checkbox = checkbox_elem;
+    this.$.checkbox.query = this.query;
+    this.$.checkbox.onclick = this.On_Choose_Chart;
+    this.$.checkbox.hidden = false;
 
     this.$.item.query = this.query;
     this.$.item.onclick = this.On_Show_Chart;
-    this.$.item.append(checkbox_elem);
   }
 
-  Render_Items(is_home_menu, db)
+  Render_Items(is_home_menu)
   {
     if (is_home_menu)
     {
-      const stats_elem = document.createElement("paper-icon-button");
-      stats_elem.icon = "menu";
-      this.$.item.append(stats_elem);
+      this.$.menu_btn.hidden = false;
     }
     else
     {
-      const stats_elem = document.createElement("paper-icon-button");
-      stats_elem.icon = "trending-up";
-      stats_elem.onclick = this.On_Choose_Trend.bind(this);
-      this.$.item.append(stats_elem);
+      this.$.summ_btn.onclick = this.On_Choose_Trend.bind(this);
+      this.$.summ_btn.hidden = false;
       this.$.open_icon.hidden = false;
     }
 
-    const list_elem = document.createElement("iron-collapse");
-    list_elem.id = "list";
-    this.$.item.parentNode.append(list_elem);
-    this.$.list_elem = list_elem;
+    this.$.list_elem.hidden = false;
 
     this.$.item.onclick = this.On_Toggle_Menu.bind(this);
 
-    var c;
-
-    for (c = 0; c < this.child_queries.length; c++)
+    for (const child_query of this.child_queries)
     {
-      const child_query = this.child_queries[c];
       const item_elem = document.createElement("query-menu-item");
-      item_elem.db = db;
       item_elem.query = child_query;
       item_elem.On_Show_Chart = this.On_Show_Chart;
       item_elem.On_Choose_Chart = this.On_Choose_Chart;
       item_elem.On_Choose_Trend = this.On_Choose_Trend;
-      list_elem.appendChild(item_elem);
+      item_elem.On_Get_Children = this.On_Get_Children;
+      this.$.list_elem.appendChild(item_elem);
     }
   }
 

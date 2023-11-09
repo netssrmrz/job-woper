@@ -26,16 +26,17 @@
       {
         //console.log("index.main()")
         //await JW_Utils.Import_API();
+        let url_str = "/pages/dashboard.html";
+
         const params = new URLSearchParams(location.search);
         if (params.has('view'))
         {
           const view = params.get("view");
-          jw_frame.src = "/pages/" + view;
+          params.delete("view");
+          url_str = "/pages/" + view + "?" + params.toString();
         }
-        else
-        {
-          jw_frame.src = "/pages/dashboard.html";
-        }
+
+        jw_frame.src = url_str;
       }
     </script>
   </head>

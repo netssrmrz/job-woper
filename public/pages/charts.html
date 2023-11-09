@@ -308,37 +308,43 @@
     import JW_Utils from "/lib/JW_Utils.js";
     import Utils from "/lib/Utils.js";
 
-    let db, chart_data, query_ids = [];
+    let chart_data, query_ids = [];
 
     // Events =====================================================================================
 
     Main();
     async function Main()
     {
-      var toggle_elem, menu_elem, view_chart_elem;
+      var toggle_elem, menu_elem;
 
       await JW_Utils.Import_API();
 
-      menu_elem = document.createElement("query-menu-item");
-      menu_elem.id = "query_menu";
-      menu_elem.db = db;
-      menu_elem.On_Show_Chart = On_Show_Chart;
-      menu_elem.On_Choose_Chart = On_Choose_Chart;
-      menu_elem.On_Choose_Trend = On_Choose_Trend;
-      menu_items.append(menu_elem);
+      const queries = await Query.Select_All(null, [{code: "ORDERBY_ORDER", dir: "asc"}]);
+      query_menu.On_Show_Chart = On_Show_Chart;
+      query_menu.On_Choose_Chart = On_Choose_Chart;
+      query_menu.On_Choose_Trend = On_Choose_Trend;
+      query_menu.On_Get_Children = query_id => queries.filter(q => q.parent_id == query_id);
 
       Init_Chart();
 
-      toggle_elem = document.getElementById("rel_button");
-      toggle_elem.onclick = On_Relative_Click;
+      rel_button.onclick = On_Relative_Click;
 
-      view_chart_elem = document.getElementById("view_chart_button");
-      view_chart_elem.onclick = On_View_Chart_Click;
-      view_chart_elem.disabled = true;
+      view_chart_button.onclick = On_View_Chart_Click;
+      view_chart_button.disabled = true;
 
-      const query = await Query.Select_By_Title("Operating System");
-      const child_queries = await Query.Select_Children_By_Id(query.id);
-      Show_Trend(query, child_queries);
+      const params = new URLSearchParams(location.search);
+      if (params.has('query_ids'))
+      {
+        query_ids = params.getAll("query_ids");
+        query_menu.checked_ids = query_ids;
+        Show_Charts(query_ids, false);
+      }
+      else
+      {
+        const query = await Query.Select_By_Title("Operating System");
+        const child_queries = await Query.Select_Children_By_Id(query.id);
+        Show_Trend(query, child_queries);
+      }
     }
 
     function On_View_Chart_Click()
@@ -362,11 +368,10 @@
       JW_Utils.Hide(intro_div);
       JW_Utils.Hide(stats_elem);
       JW_Utils.Show(curve_chart);
-
       if (this.checked)
       {
         query_ids.push(this.query.id);
-        Draw_Chart_By_Query_Ids(db, query_ids, false, Is_Relative_Chart());
+        Draw_Chart_By_Query_Ids(query_ids, Is_Relative_Chart());
       }
       else if (Charts_Displayed(chart_data) > 1)
       {
@@ -379,7 +384,6 @@
         const idx = query_ids.indexOf(this.query.id);
         query_ids.splice(idx, 1);
       }
-      // if only 1 chart visible then keep chart visible
       else
       {
         this.checked = true;
@@ -399,7 +403,7 @@
       JW_Utils.Show(curve_chart);
 
       query_ids = [this.query.id];
-      Draw_Chart_By_Query_Ids(db, query_ids, true, false);
+      Draw_Chart_By_Query_Ids(query_ids, false);
     }
 
     function On_Relative_Click()
@@ -413,6 +417,15 @@
     }
 
     // UI =========================================================================================
+
+    function Show_Charts(query_ids)
+    {
+      JW_Utils.Hide(intro_div);
+      JW_Utils.Hide(stats_elem);
+      JW_Utils.Show(curve_chart);
+
+      Draw_Chart_By_Query_Ids(query_ids, Is_Relative_Chart());
+    }
 
     async function Show_Trend(query, child_queries)
     {
@@ -467,11 +480,11 @@
       }
     }
 
-    async function Draw_Chart_By_Query_Ids(db, ids, single_query, is_relative)
+    async function Draw_Chart_By_Query_Ids(ids, is_relative)
     {
       document.getElementById("wait_dlg").style.display = "flex";
 
-      const data_vals = await Trend.Select_Chart_Vals_By_Query_Ids(db, ids);
+      const data_vals = await Trend.Select_Chart_Vals_By_Query_Ids(ids);
       if (Utils.isEmpty(data_vals))
         document.getElementById("no_data").show();
       else
@@ -571,12 +584,12 @@
 
     function Is_Relative_Chart()
     {
-      return document.getElementById("rel_button").checked;
+      return rel_button.checked;
     }
 
     function Set_Absolute_Chart()
     {
-      document.getElementById("rel_button").checked = false;
+      rel_button.checked = false;
     }
 
     // Data Manipulation ==========================================================================
@@ -797,7 +810,9 @@
   <app-drawer-layout>
 
     <app-drawer id="menu_drawer" slot="drawer" width="300">
-      <div id="menu_items"></div>
+      <div id="menu_items">
+        <query-menu-item id="query_menu"></query-menu-item>
+      </div>
     </app-drawer>
 
     <app-header-layout>
