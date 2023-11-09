@@ -191,6 +191,19 @@ class Trend
     return res;
   }
 
+  static async Select_Count(db, query_id)
+  {
+    let res = null;
+
+    const entries = await Trend.Select_By_Query_Id(db, query_id);
+    if (!Utils.isEmpty(entries))
+    {
+      res = entries.length;
+    }
+
+    return res;
+  }
+
   static async Select_Chart_Vals_By_Query_Id(db, query_id)
   {
     let vals = null;

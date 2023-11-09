@@ -36,6 +36,7 @@
             {id: "parent", title: "Parent", field_fn: (q) => Trend.Get_Query_Title(q.parent_id)}, 
             {id: "order", title: "Order", field_name: "order"}, 
             {id: "last", title: "Date of Last Entry", renderAs: "datetime", field_fn: q => Trend.Select_Last_Date(q.id)}, 
+            {id: "count", title: "# of Entries", field_fn: q => Trend.Select_Count(q.id)}, 
           ];
         }
 
@@ -361,6 +362,7 @@
       <li col-id="parent">Parent</li>
       <li col-id="order">Order #</li>
       <li col-id="last">Date of Last Entry</li>
+      <li col-id="count"># of Entries</li>
     </select-columns>
 
     <dialog id="count_dlg">

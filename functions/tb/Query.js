@@ -128,11 +128,14 @@ class Query
 
   static async Insert_All(db, Trend, Jobs, zenrows)
   {
+    const log_tag = "Query.Insert_All()";
+
     const queries = await Query.Select_All(db);
     console.log("Query.Insert_All: " + queries.length + " queries to process");
     for (const query of queries)
     {
-      console.log("Query.Insert_All: query = " + JSON.stringify(query));
+      let log_status = "";
+
       if (!Utils.isEmpty(query.terms))
       {
         const has_data_today = await Query.Has_Data_Today(db, Trend, query.id);
@@ -141,24 +144,26 @@ class Query
           const insert_ok = await Trend.Insert_By_Query(db, Jobs, zenrows, query);
           if (insert_ok)
           {
-            console.log("Query.Insert_All: Query \"" + query.title + "\" updated");
+            log_status = "updated";
           }
           else
           {
-            console.warning("Query.Insert_All: Query \"" + query.title + "\" error");
+            log_status = "error";
           }
         }
         else
         {
-          console.log("Query.Insert_All: Query \"" + query.title + "\" skipped due to existing data");
+          log_status = "skipped has data";
         }
       }
       else
       {
-        console.log("Query.Insert_All: Query \"" + query.title + "\" skipped due to missing query string");
+        log_status = "skipped no terms";
       }
+      console.log(log_tag + ": Query \"" + query.title + "\" " + log_status);
+      //console.log(log_tag + ": query = " + JSON.stringify(query));
     }
-    console.log("Query.Insert_All: \"" + queries.length + "\" queries processed");
+    console.log(log_tag + ": \"" + queries.length + "\" queries processed");
   }
 
   static async Has_Data_Today(db, Trend, id)

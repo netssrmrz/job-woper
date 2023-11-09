@@ -46,6 +46,7 @@ const rpc_buddy = new RPC_Buddy
     {name: "Trend.Insert_By_Query", inject: [db, Jobs, zenrows], on_auth_fn}, 
     {name: "Trend.Save", inject: [db], on_auth_fn}, 
     {name: "Trend.Insert_Interpolation", inject: [db], on_auth_fn}, 
+    {name: "Trend.Select_Count", inject: [db]}, 
     
     {name: "Query.Select_All", inject: [db, Trend]}, 
     {name: "Query.Select_Count", inject: [db]}, 
@@ -69,6 +70,7 @@ rpc_buddy.client_cache_control = "max-age=2592000"; // 30 days
 const api_options =
 {
   region: ["australia-southeast1"],
+  timeoutSeconds: 240,
   minInstances: 0,
   concurrency: 80
 };

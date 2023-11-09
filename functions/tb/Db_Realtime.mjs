@@ -6,6 +6,7 @@ class Db_Realtime
   {
     this.client = client || null;
     this.error = null;
+    this.read_only = false;
   }
   
   get db()
@@ -152,15 +153,18 @@ class Db_Realtime
   {
     let res = null;
 
-    try
+    if (!this.read_only)
     {
-      obj.id = this.client.ref(table_name).push().key;
-      this.client.ref(table_name + "/" + obj.id).set(obj, on_success_fn);
-      res = obj.id;
-    }
-    catch(error)
-    {
-      this.last_error = error;
+      try
+      {
+        obj.id = this.client.ref(table_name).push().key;
+        this.client.ref(table_name + "/" + obj.id).set(obj, on_success_fn);
+        res = obj.id;
+      }
+      catch(error)
+      {
+        this.last_error = error;
+      }
     }
 
     return res;
@@ -187,14 +191,17 @@ class Db_Realtime
   {
     let res = null;
 
-    try
+    if (!this.read_only)
     {
-      this.client.ref(table_name + "/" + obj.id).set(obj, on_success_fn);
-      res = obj.id;
-    }
-    catch(error)
-    {
-      this.last_error = error;
+      try
+      {
+        this.client.ref(table_name + "/" + obj.id).set(obj, on_success_fn);
+        res = obj.id;
+      }
+      catch(error)
+      {
+        this.last_error = error;
+      }
     }
 
     return res;
@@ -363,7 +370,8 @@ class Db_Realtime
         }
         if (where.op == "contains")
         {
-          res = res.filter(o => this.Get_Field_Value(o, where, "").includes(where.value));
+          const where_value = where.value.toLowerCase();
+          res = res.filter(o => this.Get_Field_Value(o, where, "", true).includes(where_value));
         }
         if (where.op == "!=")
         {
@@ -399,7 +407,7 @@ class Db_Realtime
     return res;
   }
 
-  Get_Field_Value(obj, where, def_value)
+  Get_Field_Value(obj, where, def_value, to_lower_case)
   {
     let value = null;
 
@@ -412,6 +420,11 @@ class Db_Realtime
       else if (where.field)
       {
         value = obj[where.field];
+      }
+
+      if (value && to_lower_case && value.toLowerCase)
+      {
+        value = value.toLowerCase();
       }
     }
 

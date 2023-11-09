@@ -7,7 +7,10 @@ import Jobs from "../tb/Jobs.js";
 import config from './config.mjs';
 import db_mock from './data/db_mock.mjs';
 import zenrows_mock from './data/zenrows_mock.mjs';
+import {ZenRows} from "zenrows";
 
+const api_key = config.zen_rows_api_key;
+const zenrows = new ZenRows(api_key);
 let db = null, fb_app = null;
 
 describe('class Query', Query_Tests);
@@ -17,11 +20,12 @@ function Init()
   const app_config =
   {
     credential: firebase.credential.cert(config),
-    databaseURL: "https://trend-buddy-dev.firebaseio.com",
+    databaseURL: "https://job-woper-default-rtdb.asia-southeast1.firebasedatabase.app",
   };
   fb_app = firebase.initializeApp(app_config);
   const fb_db = firebase.database();
   db = new Db_Realtime(fb_db);
+  db.read_only = true;
 }
 
 function Cleanup()

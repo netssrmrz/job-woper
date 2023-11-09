@@ -132,7 +132,7 @@ class Jobs
     }
     catch (error)
     {
-      console.error("Jobs.Get_Job_Count(): ", error);
+      console.error("Jobs.Get_Job_Count(): ", error.message);
       count = null;
     }
 
