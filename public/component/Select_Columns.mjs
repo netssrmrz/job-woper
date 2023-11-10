@@ -103,16 +103,18 @@ class Select_Columns extends HTMLElement
   
   On_Click_Close()
   {
-    // hide field menu
     this.column_list_dlg.close();
   }
   
   On_Change_Column(e, sort)
   {
-    // hide field menu
     this.column_list.classList.remove(this.edit_class);
-
+  }
+  
+  On_Click_Ok(e)
+  {
     this.Save();
+    this.column_list_dlg.close();
     this.dispatchEvent(this.update_event);
   }
 
@@ -125,25 +127,32 @@ class Select_Columns extends HTMLElement
       this.Render_Column_Item(col_item);
 
     const html = `
-      <dialog id="column_list_dlg">
+      <dialog cid="column_list_dlg">
         <div class="dialog_header">
-          <button id="close_btn" class="btn close_btn">
+          <button cid="close_btn" class="btn close_btn">
             <span class="cancel_btn_label">✕</span>
           </button> 
           Manage Columns
         </div>
         <div class="dialog_body">
-          <ul id="column_list" class="column_list"></ul>
+          <ul cid="column_list" class="column_list"></ul>
+        </div>
+        <div class="dialog_footer">
+          <button cid="ok_btn">Ok</button>
+          <button cid="cancel_btn">Cancel</button>
         </div>
       </dialog>
     `;
+
     const elems = Utils.toDocument(html);
-    elems.getElementById("column_list").append(...col_items);
+    elems.querySelector("[cid=column_list]").append(...col_items);
     this.append(elems);
 
-    Utils.Set_Id_Shortcuts(this, this);
+    Utils.Set_Id_Shortcuts(this, this, "cid");
 
     this.close_btn.addEventListener("click", this.On_Click_Close);
+    this.cancel_btn.addEventListener("click", this.On_Click_Close);
+    this.ok_btn.addEventListener("click", this.On_Click_Ok);
   }
 
   Render_Column_Item(col_item)
@@ -152,7 +161,7 @@ class Select_Columns extends HTMLElement
     const col_text = col_item.innerText;
 
     const col_btn = document.createElement("input");
-    col_btn.id = "col_btn_" + col_id;
+    col_btn.setAttribute("cid", "col_btn_" + col_id);
     col_btn.type = "checkbox";
     col_btn.checked = true;
     col_btn.classList.add("btn");

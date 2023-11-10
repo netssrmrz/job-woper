@@ -149,6 +149,7 @@ class Select_Sort extends HTMLElement
     const sort_item = this.Render_Sort(sort);
     this.sort_list.append(sort_item);
     this.Enable_Field_Item(sort.code, false);
+    this.clr_btn.hidden = false;
   }
 
   Refresh_Table()
@@ -225,6 +226,24 @@ class Select_Sort extends HTMLElement
   {
     sort_item.remove();
     this.Enable_Field_Item(sort.code, true);
+    this.clr_btn.hidden = this.sort_list.children.length == 0;
+
+    this.Save();
+    this.Refresh_Table();
+    this.dispatchEvent(this.sort_event);
+  }
+
+  On_Click_Clear()
+  {
+    const items = [...this.sort_list.children];
+    for (const item of items)
+    {
+      const sort_def = item.sort;
+
+      item.remove();
+      this.Enable_Field_Item(sort_def.code, true);  
+    }
+    this.clr_btn.hidden = true;
 
     this.Save();
     this.Refresh_Table();
@@ -254,6 +273,9 @@ class Select_Sort extends HTMLElement
 
       <button id="add_btn" class="btn add-btn">Sort</button>
       <ul id="sort_list" class="sort-list"></ul>
+      <button id="clr_btn" class="btn clr-btn">
+        <span class="clr_btn_label">Clear</span>
+      </button>
     `;
     const elems = Utils.toDocument(html);
     elems.getElementById("field_list").append(...field_items);
@@ -263,6 +285,7 @@ class Select_Sort extends HTMLElement
 
     this.add_btn.addEventListener("click", this.On_Click_Add);
     this.close_btn.addEventListener("click", this.On_Click_Close);
+    this.clr_btn.addEventListener("click", this.On_Click_Clear);
   }
 
   Render_Field_Item(field_item)

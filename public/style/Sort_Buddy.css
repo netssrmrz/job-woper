@@ -79,4 +79,15 @@ sort-buddy .field-item
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
+}
+
+sort-buddy .clr_btn_label
+{
+  display: none;
+}
+
+sort-buddy #clr_btn::before
+{
+  content: url(../images/bin.svg);
 }

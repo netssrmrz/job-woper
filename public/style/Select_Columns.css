@@ -32,3 +32,9 @@ select-columns .column_item label
   padding: 0 10px 0 0;
 }
 
+select-columns .dialog_footer 
+{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

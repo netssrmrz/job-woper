@@ -82,6 +82,11 @@ class JW_Header extends HTMLElement
     window.open("/index.html", "_self");
   }
 
+  On_Click_About()
+  {
+    this.frame.src = "/pages/blog/blog1.html";
+  }
+
   // rendering ==========================================================================
 
   Render()
@@ -98,12 +103,13 @@ class JW_Header extends HTMLElement
     const menu_options =
     [
       { id: 1, title: "Dashboard", click: this.On_Click_Dashboard},
-      { id: 2, title: "View Queries", click: this.On_Click_View_Queries},
-      { id: 3, title: "View Data", click: this.On_Click_View_Data},
-      { id: 4, title: "View Charts", click: this.On_Click_View_Charts},
-      { id: 4, title: "View Blog", click: this.On_Click_View_Blog},
-      { id: 5, title: "Sign In", click: this.On_Click_View_Sign_In},
-      { id: 6, title: "Sign Out", click: this.On_Click_Sign_Out},
+      { id: 2, title: "Queries", click: this.On_Click_View_Queries},
+      { id: 3, title: "Data", click: this.On_Click_View_Data},
+      { id: 4, title: "Charts", click: this.On_Click_View_Charts},
+      { id: 5, title: "Blog", click: this.On_Click_View_Blog},
+      { id: 6, title: "About", click: this.On_Click_About},
+      { id: 7, title: "Sign In", click: this.On_Click_View_Sign_In},
+      { id: 8, title: "Sign Out", click: this.On_Click_Sign_Out},
     ];
     this.menu_elem.options_flat = menu_options;
   }
