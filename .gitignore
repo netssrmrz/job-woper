@@ -40,3 +40,5 @@ public/node_modules/.package-lock.json
 firebase-debug.log
 Ads.txt
 /node_modules/
+public/*.log
+data_bk/
