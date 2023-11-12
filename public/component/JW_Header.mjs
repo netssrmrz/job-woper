@@ -108,8 +108,9 @@ class JW_Header extends HTMLElement
       { id: 4, title: "Charts", click: this.On_Click_View_Charts},
       { id: 5, title: "Blog", click: this.On_Click_View_Blog},
       { id: 6, title: "About", click: this.On_Click_About},
-      { id: 7, title: "Sign In", click: this.On_Click_View_Sign_In},
-      { id: 8, title: "Sign Out", click: this.On_Click_Sign_Out},
+      { id: 7, title: "Game", click: () => this.frame.src = "/pages/game.html"},
+      { id: 8, title: "Sign In", click: this.On_Click_View_Sign_In},
+      { id: 9, title: "Sign Out", click: this.On_Click_Sign_Out},
     ];
     this.menu_elem.options_flat = menu_options;
   }

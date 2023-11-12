@@ -1,0 +1,10 @@
+game-arena
+{
+    display: block;
+}
+
+game-arena canvas
+{
+    width: 100%;
+    height: 100%;
+}
