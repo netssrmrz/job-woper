@@ -1,4 +1,5 @@
 import Utils from "../lib/Utils.js";
+import JW_Utils from "../lib/JW_Utils.js";
 
 class Game_Arena extends HTMLElement 
 {
@@ -82,6 +83,20 @@ class Game_Arena extends HTMLElement
     this.to_add.push(obj);
   }
 
+  To_Click_Pos(event_pt)
+  {
+    const rect = this.canvas.getBoundingClientRect();
+
+    const canvas_pt =
+    {
+      x: event_pt.x * this.canvas.width / rect.width,
+      y: event_pt.y * this.canvas.height / rect.height
+    }
+    const click_pos = JW_Utils.Vec_Sub(this.camera.pos, canvas_pt);
+
+    return click_pos;
+  }
+
   // events =======================================================================================
 
   On_Process(millis) // millis since Start()
@@ -147,24 +162,19 @@ class Game_Arena extends HTMLElement
     }
   }
 
-  On_Click_Title(code)
-  {
-    const dir = this.Get_Storage_Dir(code) != "asc" ? "asc" : "desc";
-    this.value = [{ code, dir }];
-    this.Save();
-  }
-
   // rendering ====================================================================================
 
   Render()
   {
-    const html = `
-      <canvas id="canvas" width="2000" height="2000"></canvas>
-    `;
-    this.innerHTML = html;
-    Utils.Set_Id_Shortcuts(this, this);
+    //const html = `<canvas id="canvas"></canvas>`;
+    //this.innerHTML = html;
+    //Utils.Set_Id_Shortcuts(this, this);
 
-    //this.add_btn.addEventListener("click", this.On_Click_Add);
+    const rect = this.getBoundingClientRect();
+    this.canvas = document.createElement("canvas");
+    this.canvas.width = rect.width;
+    this.canvas.height = rect.height;
+    this.append(this.canvas);
   }
 }
 

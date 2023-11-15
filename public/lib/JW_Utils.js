@@ -208,6 +208,110 @@ class JW_Utils
 
     return res;
   }
+
+  static Polar_To_Cart(pos)
+  {
+    return {
+      x: pos.r * Math.cos(pos.a),
+      y: pos.r * Math.sin(pos.a)
+    };
+  }
+
+  static Cart_To_Polar(pos)
+  {
+    return {
+      r: Math.hypot(pos.x, pos.y),
+      a: Math.atan2(pos.y, pos.x)
+    }
+  }
+
+  static Vec_Norm(vec)
+  {
+    const m = Math.hypot(vec.x, vec.y);
+    return {
+      x: vec.x / m,
+      y: vec.y / m
+    }
+  }
+
+  static Vec_Rev(vec)
+  {
+    return {
+      x: -vec.x,
+      y: -vec.y
+    }
+  }
+
+  static Vec_Mul(vec, m)
+  {
+    return {
+      x: vec.x * m,
+      y: vec.y * m
+    }
+  }
+
+  static Vec_Sub(v1, v2)
+  {
+    return {
+      x: v2.x - v1.x,
+      y: v2.y - v1.y
+    }
+  }
+    
+  static Millis_To_T(obj, millis)
+  {
+    let t = null;
+
+    if (obj.start_millis)
+    {
+      const elapsed_millis = millis - obj.start_millis;
+      t = elapsed_millis / obj.duration_millis;
+    }
+    else
+    {
+      obj.start_millis = millis;
+      t = 0;
+    }
+
+    return t;
+  }
+
+  static Distance(pt1, pt2)
+  {
+    const ptd = JW_Utils.Vec_Sub(pt2, pt1);
+    const d = Math.hypot(ptd.x, ptd.y);
+
+    return d;
+  }
+
+  static Collision(game, obj, class_name)
+  {
+    const target_obj = game.objs.find
+      (o => o.constructor.name == class_name && Has_Collision(o));
+    function Has_Collision(target_obj)
+    {
+      const d = JW_Utils.Distance(obj.Get_Pos(), target_obj.Get_Pos());
+      const obj_r = obj.r * obj.Get_Scale().x;
+      const target_r = target_obj.r * target_obj.Get_Scale().x;
+
+      return obj_r + target_r > d;
+    }
+
+    return target_obj;
+  }
+
+  static Elapsed_Millis(obj, millis)
+  {
+    let elapsed_millis = 0;
+
+    if (obj.last_millis)
+    {
+      elapsed_millis = millis - obj.last_millis;
+    }
+    obj.last_millis = millis;
+
+    return elapsed_millis;
+  }
 }
 
 export default JW_Utils;

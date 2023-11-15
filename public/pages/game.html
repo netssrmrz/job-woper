@@ -15,255 +15,17 @@
       import Utils from "/lib/Utils.js";
       import JW_Utils from "/lib/JW_Utils.js";
       import "/component/Game_Arena.mjs";
+      import Explosion from "/lib/game/Explosion.js";
+      import ICBM from "/lib/game/ICBM.js";
+      import City from "/lib/game/City.js";
+      import Patriot_Explosion from "/lib/game/Patriot_Explosion.js";
+      import Patriot from "/lib/game/Patriot.js";
+      import Enemy from "/lib/game/Enemy.js";
 
-      function Polar_To_Cart(pos)
+      function On_Click_Game(event)
       {
-        return {
-          x: pos.r * Math.cos(pos.a),
-          y: pos.r * Math.sin(pos.a)
-        };
-      }
-
-      function Cart_To_Polar(pos)
-      {
-        return {
-          r: Math.hypot(pos.x, pos.y),
-          a: Math.atan2(pos.y, pos.x)
-        }
-      }
-
-      function Vec_Norm(vec)
-      {
-        const m = Math.hypot(vec.x, vec.y);
-        return {
-          x: vec.x / m,
-          y: vec.y / m
-        }
-      }
-
-      function Vec_Rev(vec)
-      {
-        return {
-          x: -vec.x,
-          y: -vec.y
-        }
-      }
-
-      function Vec_Mul(vec, m)
-      {
-        return {
-          x: vec.x * m,
-          y: vec.y * m
-        }
-      }
-
-      function Vec_Sub(v1, v2)
-      {
-        return {
-          x: v2.x - v1.x,
-          y: v2.y - v1.y
-        }
-      }
-        
-      function Millis_To_T(obj, millis)
-      {
-        let t = null;
-
-        if (obj.start_millis)
-        {
-          const elapsed_millis = millis - obj.start_millis;
-          t = elapsed_millis / obj.duration_millis;
-        }
-        else
-        {
-          obj.start_millis = millis;
-          t = 0;
-        }
-
-        return t;
-      }
-
-      class ICBM
-      {
-        constructor()
-        {
-          const polar_pos = 
-          {
-            r:Utils.Random(900, 1000),
-            a:Utils.Random(-Math.PI,Math.PI)
-          };
-          this.pos = Polar_To_Cart(polar_pos);
-          
-          this.pos_end = 
-          {
-            x: Utils.Random(-100, 100), 
-            y: Utils.Random(-100, 100)
-          };
-
-          this.speed = 0.08;
-          const vd = Vec_Sub(this.pos_end, this.pos);
-          const v2 = Vec_Norm(vd);
-          const v3 = Vec_Rev(v2);
-          this.vel = Vec_Mul(v3, this.speed);
-
-          const polar_vel = Cart_To_Polar(this.vel);
-          this.angle = polar_vel.a;
-
-          const d = Math.hypot(vd.x, vd.y);
-          this.duration_millis = d / this.speed;
-        }
-
-        Get_Pos()
-        {
-          return this.pos;
-        }
-
-        Get_Angle()
-        {
-          return this.angle;
-        }
-
-        Get_Scale()
-        {
-          return {x: 0.1, y: 0.1};
-        }
-
-        Render(ctx)
-        {
-          ctx.strokeStyle = "#f00";
-          ctx.lineWidth = 10;
-
-          ctx.beginPath();
-          ctx.moveTo(100, 0);
-          ctx.lineTo(-50, -50);
-          ctx.lineTo(-50, 50);
-          ctx.closePath();
-          ctx.stroke();
-        }
-
-        Process(millis, game)
-        {
-          if (this.last_millis)
-          {
-            const elapsed_millis = millis - this.last_millis;
-            this.pos.x += this.vel.x * elapsed_millis;
-            this.pos.y += this.vel.y * elapsed_millis;
-          }
-          this.last_millis = millis;
-
-          if (this.start_millis)
-          {
-            const elapsed_millis = millis - this.start_millis;
-            if (elapsed_millis > this.duration_millis)
-            {
-              game.Obj_Remove(this);
-
-              const explosion = new Explosion(this.pos);
-              game.Obj_Add(explosion);
-            }
-          }
-          else
-          {
-            this.start_millis = millis;
-          }
-        }
-      }
-
-      class Explosion
-      {
-        constructor(pos)
-        {
-          this.pos = pos;
-          this.scale = {x: 0, y: 0};
-          this.duration_millis = 3000;
-          this.r = 50;
-        }
-
-        Collision(game)
-        {
-          const city = game.objs.find(o => o.constructor.name == "City" && xxx(this, o));
-          function xxx(explosion, city)
-          {
-            const vd = Vec_Sub(explosion.pos, city.pos);
-            const d = Math.hypot(vd.x, vd.y);
-            const explosion_r = explosion.r * explosion.scale.x;
-            const city_r = 50;
-
-            return explosion_r + city_r > d;
-          }
-
-          return city;
-        }
-
-        Get_Pos()
-        {
-          return this.pos;
-        }
-
-        Get_Scale()
-        {
-          return this.scale;
-        }
-
-        Render(ctx)
-        {
-          ctx.fillStyle = "#fff";
-
-          ctx.beginPath();
-          ctx.ellipse(0, 0, this.r, this.r, 0, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        Process(millis, game)
-        {
-          const t = Millis_To_T(this, millis);
-          if (t > 1)
-          {
-            game.Obj_Remove(this);
-          }
-          else
-          {
-            this.scale = {x: t, y: t};
-            
-            const city = this.Collision(game);
-            if (city)
-            {
-              game.Obj_Remove(city);
-            }
-          }
-        }
-      }
-
-      class City
-      {
-        constructor(x, y)
-        {
-          this.pos = {x, y};
-        }
-
-        Get_Pos()
-        {
-          return this.pos;
-        }
-
-        Get_Scale()
-        {
-          return {x: 0.25, y: 0.25};
-        }
-
-        Render(ctx)
-        {
-          ctx.strokeStyle = "#fff";
-          ctx.lineWidth = 1;
-
-          ctx.beginPath();
-          ctx.moveTo(50, 50);
-          ctx.lineTo(-50, 50);
-          ctx.lineTo(-50, -50);
-          ctx.lineTo(50, -50);
-          ctx.closePath();
-          ctx.stroke();
-        }
+        const click_pos = game.To_Click_Pos({x: event.offsetX, y: event.offsetY});
+        game.Obj_Add(new Patriot(click_pos, Patriot_Explosion));
       }
 
       main();
@@ -280,14 +42,12 @@
           new City(-100,100),
           new City(-100,-100),
           new City(100,-100),
-          new ICBM(),
-          new ICBM(),
-          new ICBM(),
-          new ICBM(),
+          new Enemy({ICBM, Explosion}),
         ];
         game.value = objs;
         game.Start();
 
+        game.addEventListener("click", On_Click_Game);
         pause_btn.addEventListener("click", () => game.Toggle());
       }
     </script>
