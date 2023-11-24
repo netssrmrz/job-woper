@@ -2,6 +2,8 @@
   <head>
     <link type="text/css" rel="stylesheet" href="/style/main.css" />
     <link type="text/css" rel="stylesheet" href="/style/blog-footer.css" />
+    <link type="text/css" rel="stylesheet" href="/style/Query_Rankings.css" />
+    <link type="text/css" rel="stylesheet" href="/style/Query_Weights.css" />
 
     <style>
       @font-face
@@ -60,19 +62,51 @@
       .summary
       {
       }
+      .left
+      {
+        float: left;
+      }
+      .right
+      {
+        float: right;
+      }
+      .stats
+      {
+        display: block;
+        margin: 0 30px;
+        text-align: center;
+      }
     </style>
 
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="module">
+      import JW_Utils from "/lib/JW_Utils.js";
+      import "../component/Query_Rankings.mjs";
+      import "../component/Query_Weights.mjs";
+
+      Main();
+      async function Main()
+      {
+        await JW_Utils.Import_API();
+        window.parent.jw_header.subtitle = "Latest News";
+
+        const parent_id = "-Ly2dHMN0mVIHgQF269I";
+        const queries = await Query.Select_Children_By_Id(parent_id);
+        const query_ids = queries.map(q => q.id);
+        let stats = await Trend.Select_Stats_By_Query_Ids(query_ids);
+        stats.sort((s1, s2) => s2.last_entry.count - s1.last_entry.count);
+
+        rank_elem.data = stats.slice(0, 5);
+        weight_elem.data = stats;
+      }
     </script>
   </head>
 
   <body>
 
-    <h1>Blog Articles for Your Viewing Pleasure</h1>
-
     <a href="blog/blog1.html">
-      <img src="../images/blog/logos.webp">
       <div class="summary">
+        <img class="left" src="../images/blog/logos.webp">
         <h1>Job Woper: Your Ultimate Resource for Software Engineering Skill Trends</h1>
         <h6>By Esteban Ramirez, 7th November 2023</h6>
         <p>
@@ -83,8 +117,16 @@
       </div>
     </a>
 
+    <a href="charts.html">
+      <p style="text-align: center;">
+        📈 Click here to explore our wide assortment of job charts so you can compare 
+        languages, frameworks, databases, and more. 📊
+      </p>
+    </a>
+
     <a href="blog/blog2.html">
       <div class="summary">
+        <img class="right" src="../images/blog/angular-react-vue.webp">
         <h1>The Ever-Changing Landscape of Frontend Web Development Tech: Insights from Job Data</h1>
         <h6>By Esteban Ramirez, 6th November 2023</h6>
         <p>
@@ -93,7 +135,6 @@
           their skillset to remain competitive in the job market.
         </p>
       </div>
-      <img src="../images/blog/angular-react-vue.webp">
     </a>
 
     <!--a href="blog/blog3.html">
@@ -109,6 +150,13 @@
       </div>
     </a-->
     
+    <h1>Latest Language Rankings by Demand</h1>
+
+    <div class="stats">
+      <query-rankings id="rank_elem" title="Top 5"></query-rankings>
+      <query-weights id="weight_elem" title="Usage"></query-weights>
+    </div>
+
     <footer>
       <hr>
 
