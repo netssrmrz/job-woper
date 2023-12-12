@@ -52,7 +52,7 @@ class Cluster
     ctx.stroke();
   }
 
-  Process(millis, game)
+  On_Process(millis, game)
   {
     this.t = JW_Utils.Millis_To_T(this, millis);
     if (this.t > 0.5)

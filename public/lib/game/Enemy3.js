@@ -9,7 +9,7 @@ class Enemy
     this.missiles = 10;
   }
 
-  Process(millis, game)
+  On_Process(millis, game)
   {
     if (this.missiles > 0)
     {
@@ -22,11 +22,7 @@ class Enemy
     }
     else
     {
-      const objs_exist = game.Obj_Exists(["Cruise", "Explosion", "Patriot_Explosion"]);
-      if (!objs_exist)
-      {
-        game.dispatchEvent(new Event("end"));
-      }
+      game.Check_End();
     }
   }
 }

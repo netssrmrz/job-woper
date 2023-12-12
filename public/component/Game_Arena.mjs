@@ -17,6 +17,7 @@ class Game_Arena extends HTMLElement
   connectedCallback()
   {
     this.Render();
+    this.Init();
   }
 
   get value()
@@ -28,7 +29,7 @@ class Game_Arena extends HTMLElement
     this.objs = objs;
   }
 
-  Start()
+  Init()
   {
     this.camera = 
     {
@@ -51,26 +52,34 @@ class Game_Arena extends HTMLElement
 
     this.ctx = this.canvas.getContext("2d");
     this.ctx.translate(this.camera.pos.x, this.camera.pos.y);
-    this.Continue();
   }
 
-  Pause()
+  Stop()
   {
     this.is_playing = false;
   }
 
-  Continue()
+  Play()
   {
     this.is_playing = true;
+
+    for (const obj of this.objs)
+    {
+      if (obj.On_Init)
+      {
+        obj.On_Init(this);
+      }
+    }
+
     requestAnimationFrame(this.On_Process);
   }
 
   Toggle()
   {
     if (this.is_playing)
-      this.Pause();
+      this.Stop();
     else
-      this.Continue();
+      this.Play();
   }
 
   Obj_Exists(class_names)
@@ -91,6 +100,10 @@ class Game_Arena extends HTMLElement
   Obj_Add(obj)
   {
     this.to_add.push(obj);
+    if (obj.On_Init)
+    {
+      obj.On_Init(this);
+    }
   }
 
   To_Click_Pos(event_pt)
@@ -107,9 +120,29 @@ class Game_Arena extends HTMLElement
     return click_pos;
   }
 
+  Check_End()
+  {
+    const chars =
+    [
+      "Cluster", 
+      "Cruise", 
+      "Drone", 
+      "Explosion", 
+      "ICBM", 
+      "Patriot", 
+      "Patriot_Explosion"
+    ];
+
+    const objs_exist = this.Obj_Exists(chars);
+    if (!objs_exist)
+    {
+      this.dispatchEvent(new Event("end"));
+    }
+  }
+
   // events =======================================================================================
 
-  On_Process(millis) // millis since Start()
+  On_Process(millis) // millis since Play()
   {
     this.ctx.clearRect
     (
@@ -149,9 +182,9 @@ class Game_Arena extends HTMLElement
 
     for (const obj of this.objs)
     {
-      if (obj.Process)
+      if (obj.On_Process)
       {
-        obj.Process(millis, this);
+        obj.On_Process(millis, this);
       }
     }
 

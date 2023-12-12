@@ -10,7 +10,7 @@ class Enemy
     this.missiles = missiles;
   }
 
-  Process(millis, game)
+  On_Process(millis, game)
   {
     if (this.missiles > 0)
     {
@@ -20,21 +20,13 @@ class Enemy
         const weapon_def = Choose_Weapon(this.weapons);
         const weapon_class = weapon_def.class_obj;
         const weapon = new weapon_class(this.obj_types);
-        if (weapon.Set_Speed)
-        {
-          weapon.Set_Speed(weapon_def.speed);
-        }
         game.Obj_Add(weapon);
         this.missiles--;
       }
     }
     else
     {
-      const objs_exist = game.Obj_Exists(["ICBM", "Explosion", "Patriot_Explosion"]);
-      if (!objs_exist)
-      {
-        game.dispatchEvent(new Event("end"));
-      }
+      game.Check_End();
     }
   }
 }

@@ -30,7 +30,7 @@ class Patriot_Explosion
     ctx.fill();
   }
 
-  Process(millis, game)
+  On_Process(millis, game)
   {
     const t = JW_Utils.Millis_To_T(this, millis);
     if (t > 1)

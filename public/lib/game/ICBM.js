@@ -3,37 +3,36 @@ import JW_Utils from "../JW_Utils.js";
 
 class ICBM
 {
-  constructor(obj_types, pos_start)
+  constructor(obj_types)
   {
     this.obj_types = obj_types;
 
-    if (pos_start)
-    {
-      this.pos_start = pos_start;
-    }
-    else
-    {
-      const polar_pos = 
-      {
-        r: Utils.Random(900, 1000),
-        a: Utils.Random(-Math.PI,Math.PI)
-      };
-      this.pos_start = JW_Utils.Polar_To_Cart(polar_pos);
-    }
-    
     this.target_area = 200;
     this.pos_end = 
     {
       x: Utils.Random(-this.target_area, this.target_area), 
       y: Utils.Random(-this.target_area, this.target_area)
     };
-    
-    this.pos = {x: this.pos_start.x, y: this.pos_start.y};
-
-    this.Set_Speed(0.04);
 
     this.r = 10;
     this.score = 10;
+  }
+
+  On_Init(game)
+  {
+    const w = game.canvas.width;
+    const h = game.canvas.height;
+    const r = Math.min(w, h)/2;
+
+    const polar_pos = 
+    {
+      r,
+      a: Utils.Random(-Math.PI,Math.PI)
+    };
+    this.pos_start = JW_Utils.Polar_To_Cart(polar_pos);
+    
+    this.pos = {x: this.pos_start.x, y: this.pos_start.y};
+    this.Set_Speed(0.04);
   }
 
   Set_Speed(s)
@@ -85,7 +84,7 @@ class ICBM
     ctx.stroke();
   }
 
-  Process(millis, game)
+  On_Process(millis, game)
   {
     if (this.last_millis)
     {

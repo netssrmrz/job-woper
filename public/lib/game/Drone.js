@@ -41,7 +41,7 @@ class Drone
     ctx.stroke();
   }
 
-  Process(millis, game)
+  On_Process(millis, game)
   {
     const elapsed_millis = JW_Utils.Elapsed_Millis(this, millis);
 

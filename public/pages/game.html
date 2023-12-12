@@ -17,6 +17,10 @@
         justify-content: center;
         gap: 30px;
       }
+      .overlay button
+      {
+        padding: 6px 30px 8px 40px;
+      }
       #start_btn
       {
         font-size: 32px;
@@ -46,6 +50,7 @@
         JW_Utils.Update_Access();
 
         window.parent.jw_header.subtitle = "Thermonuclear War";
+        start_msg.hidden = false;
 
         start_btn.addEventListener("click", On_Click_Start);
         pause_btn.addEventListener("click", () => game.Toggle());
@@ -55,7 +60,7 @@
       function On_Click_Start()
       {
         game.value = level[curr_level];
-        game.Start();
+        game.Play();
 
         const player = game.Obj_Find("Player");
         game.addEventListener("click", (e) => On_Click_Game(e, player));
@@ -66,9 +71,11 @@
       function On_Game_End()
       {
         game.Stop();
-        overlay_elem.style.display = "flex";
-
         curr_level++;
+
+        overlay_elem.style.display = "flex";
+        start_msg.hidden = true;
+        level_msg.hidden = false;
       }
 
       function On_Click_Game(event, player)
@@ -83,9 +90,11 @@
     <div id="overlay_elem" class="overlay">
       <button id="pause_btn" hidden>Pause</button>
 
-      <span>Press "Start" to play.</span>
+      <span id="start_msg" hidden>Press "Start" to play.</span>
+      <span id="level_msg" hidden>Press "Start" to play the next level.</span>
       <button id="start_btn">Start</button>
     </div>
+
     <game-arena id="game"></game-arena>
   </body>
 </html>

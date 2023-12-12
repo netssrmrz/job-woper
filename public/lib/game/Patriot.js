@@ -54,7 +54,7 @@ class Patriot
     ctx.stroke();
   }
 
-  Process(millis, game)
+  On_Process(millis, game)
   {
     const elapsed_millis = JW_Utils.Elapsed_Millis(this, millis);
     this.pos.x += this.vel.x * elapsed_millis;

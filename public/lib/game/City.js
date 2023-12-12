@@ -21,7 +21,7 @@ class City
   Render(ctx)
   {
     ctx.strokeStyle = "#0ff";
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1;
 
     ctx.beginPath();
     ctx.moveTo(-20, 20);
@@ -46,9 +46,9 @@ class City
     ctx.closePath();
     ctx.stroke();
 
-    ctx.beginPath();
-    ctx.ellipse(0, 0, this.r, this.r, 0, 0, Math.PI * 2);
-    ctx.stroke();
+    //ctx.beginPath();
+    //ctx.ellipse(0, 0, this.r, this.r, 0, 0, Math.PI * 2);
+    //ctx.stroke();
   }
 }
 
