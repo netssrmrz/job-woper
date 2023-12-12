@@ -3,9 +3,9 @@ import JW_Utils from "../JW_Utils.js";
 
 class Cluster
 {
-  constructor(Explosion)
+  constructor(obj_types)
   {
-    this.Explosion = Explosion;
+    this.obj_types = obj_types;
     
     const polar_pos = 
     {
@@ -21,7 +21,7 @@ class Cluster
     };
     
     this.t = 0;
-    this.duration_millis = 4000;
+    this.duration_millis = 40000;
 
     this.r = 3;
   }
@@ -55,6 +55,17 @@ class Cluster
   Process(millis, game)
   {
     this.t = JW_Utils.Millis_To_T(this, millis);
+    if (this.t > 0.5)
+    {
+        game.Obj_Remove(this);
+
+        let icbm = new this.obj_types.ICBM(this.obj_types, this.Get_Pos());
+        game.Obj_Add(icbm);
+        icbm = new this.obj_types.ICBM(this.obj_types, this.Get_Pos());
+        game.Obj_Add(icbm);
+        icbm = new this.obj_types.ICBM(this.obj_types, this.Get_Pos());
+        game.Obj_Add(icbm);
+    }
   }
 }
 

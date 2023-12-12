@@ -41,10 +41,13 @@ class Patriot_Explosion
     {
       this.scale = {x: t, y: t};
       
-      const icbm = JW_Utils.Collision(game, this, "ICBM");
+      const icbm = JW_Utils.Collision(game, this, ["ICBM", "Cluster", "Cruise", "Drone"]);
       if (icbm)
       {
         game.Obj_Remove(icbm);
+
+        const player = game.Obj_Find("Player");
+        player.Add_Score(icbm.score, game);
       }
     }
   }

@@ -3,26 +3,42 @@ import JW_Utils from "../JW_Utils.js";
 
 class ICBM
 {
-  constructor(Explosion)
+  constructor(obj_types, pos_start)
   {
-    this.Explosion = Explosion;
-    
-    const polar_pos = 
+    this.obj_types = obj_types;
+
+    if (pos_start)
     {
-      r: Utils.Random(900, 1000),
-      a: Utils.Random(-Math.PI,Math.PI)
-    };
-    this.pos_start = JW_Utils.Polar_To_Cart(polar_pos);
+      this.pos_start = pos_start;
+    }
+    else
+    {
+      const polar_pos = 
+      {
+        r: Utils.Random(900, 1000),
+        a: Utils.Random(-Math.PI,Math.PI)
+      };
+      this.pos_start = JW_Utils.Polar_To_Cart(polar_pos);
+    }
     
+    this.target_area = 200;
     this.pos_end = 
     {
-      x: Utils.Random(-100, 100), 
-      y: Utils.Random(-100, 100)
+      x: Utils.Random(-this.target_area, this.target_area), 
+      y: Utils.Random(-this.target_area, this.target_area)
     };
     
     this.pos = {x: this.pos_start.x, y: this.pos_start.y};
 
-    this.speed = 0.04;
+    this.Set_Speed(0.04);
+
+    this.r = 10;
+    this.score = 10;
+  }
+
+  Set_Speed(s)
+  {
+    this.speed = s;
     const vd = JW_Utils.Vec_Sub(this.pos_end, this.pos);
     const v2 = JW_Utils.Vec_Norm(vd);
     const v3 = JW_Utils.Vec_Rev(v2);
@@ -33,8 +49,6 @@ class ICBM
 
     const d = Math.hypot(vd.x, vd.y);
     this.duration_millis = d / this.speed;
-
-    this.r = 10;
   }
 
   Get_Pos()
@@ -86,7 +100,7 @@ class ICBM
     {
       game.Obj_Remove(this);
 
-      const explosion = new this.Explosion(this.pos);
+      const explosion = new this.obj_types.Explosion(this.pos);
       game.Obj_Add(explosion);
     }
   }

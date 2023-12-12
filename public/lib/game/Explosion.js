@@ -41,7 +41,7 @@ class Explosion
     {
       this.scale = {x: t, y: t};
       
-      const city = JW_Utils.Collision(game, this, "City");
+      const city = JW_Utils.Collision(game, this, ["City"]);
       if (city)
       {
         game.Obj_Remove(city);

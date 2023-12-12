@@ -73,6 +73,16 @@ class Game_Arena extends HTMLElement
       this.Continue();
   }
 
+  Obj_Exists(class_names)
+  {
+    return this.objs.some(o => class_names.includes(o.constructor.name));
+  }
+
+  Obj_Find(class_name)
+  {
+    return this.objs.find(o => class_name == o.constructor.name);
+  }
+
   Obj_Remove(obj)
   {
     this.to_remove.push(obj);

@@ -225,6 +225,23 @@ class JW_Utils
     }
   }
 
+  static Vec_Gravity(m1, m2, p1, p2)
+  {
+    const d = JW_Utils.Distance(p1, p2);
+    const pd = JW_Utils.Vec_Sub(p1, p2);
+    
+    const F = m1 * m2 / (d * d);
+    const f = JW_Utils.Vec_Mul(pd, F);
+  
+    return f;
+  }
+  
+  static Close(p1, p2, r)
+  {
+    const d = JW_Utils.Distance(p1, p2);
+    return d < r;
+  }
+
   static Vec_Norm(vec)
   {
     const m = Math.hypot(vec.x, vec.y);
@@ -247,6 +264,14 @@ class JW_Utils
     return {
       x: vec.x * m,
       y: vec.y * m
+    }
+  }
+
+  static Vec_Add(v1, v2)
+  {
+    return {
+      x: v2.x + v1.x,
+      y: v2.y + v1.y
     }
   }
 
@@ -284,15 +309,15 @@ class JW_Utils
     return d;
   }
 
-  static Collision(game, obj, class_name)
+  static Collision(game, obj, class_names)
   {
     const target_obj = game.objs.find
-      (o => o.constructor.name == class_name && Has_Collision(o));
+      (o => class_names.includes(o.constructor.name) && Has_Collision(o));
     function Has_Collision(target_obj)
     {
       const d = JW_Utils.Distance(obj.Get_Pos(), target_obj.Get_Pos());
-      const obj_r = obj.r * obj.Get_Scale().x;
-      const target_r = target_obj.r * target_obj.Get_Scale().x;
+      const obj_r = obj.Get_Scale ? obj.r * obj.Get_Scale().x : obj.r;
+      const target_r = target_obj.Get_Scale ? target_obj.r * target_obj.Get_Scale().x : target_obj.r;
 
       return obj_r + target_r > d;
     }

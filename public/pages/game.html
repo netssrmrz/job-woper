@@ -3,11 +3,31 @@
     <link type="text/css" rel="stylesheet" href="/style/main.css" />
     <link type="text/css" rel="stylesheet" href="/style/Game_Arena.css" />
     <style>
-      #pause_btn
+      .overlay
       {
         position: absolute;
-        left: 10px;
-        top: 10px;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+      }
+      #start_btn
+      {
+        font-size: 32px;
+      }
+      #game
+      {
+        background-image: url(../images/map-usa.svg);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-position: 14% 52%;
+        background-size: 526%;
       }
     </style>
 
@@ -15,18 +35,9 @@
       import Utils from "/lib/Utils.js";
       import JW_Utils from "/lib/JW_Utils.js";
       import "/component/Game_Arena.mjs";
-      import Explosion from "/lib/game/Explosion.js";
-      import ICBM from "/lib/game/ICBM.js";
-      import City from "/lib/game/City.js";
-      import Patriot_Explosion from "/lib/game/Patriot_Explosion.js";
-      import Patriot from "/lib/game/Patriot.js";
-      import Enemy from "/lib/game/Enemy.js";
+      import level from "/lib/game/level.js";
 
-      function On_Click_Game(event)
-      {
-        const click_pos = game.To_Click_Pos({x: event.offsetX, y: event.offsetY});
-        game.Obj_Add(new Patriot(click_pos, Patriot_Explosion));
-      }
+      let curr_level = 0;
 
       main();
       async function main()
@@ -34,27 +45,56 @@
         await JW_Utils.Import_API();
         JW_Utils.Update_Access();
 
-        window.parent.jw_header.subtitle = "Game";
+        window.parent.jw_header.subtitle = "Thermonuclear War";
 
-        const objs =
-        [
-          new City(100,100),
-          new City(-100,100),
-          new City(-100,-100),
-          new City(100,-100),
-          new Enemy({ICBM, Explosion}),
-        ];
-        game.value = objs;
+        start_btn.addEventListener("click", On_Click_Start);
+        pause_btn.addEventListener("click", () => game.Toggle());
+        game.addEventListener("end", On_Game_End);
+      }
+
+      function On_Click_Start()
+      {
+        game.value = level[curr_level];
         game.Start();
 
-        game.addEventListener("click", On_Click_Game);
-        pause_btn.addEventListener("click", () => game.Toggle());
+        const player = game.Obj_Find("Player");
+        game.addEventListener("click", (e) => On_Click_Game(e, player));
+
+        overlay_elem.style.display = "none";
+      }
+
+      function On_Game_End()
+      {
+        game.Stop();
+        overlay_elem.style.display = "flex";
+
+        curr_level++;
+      }
+
+      function On_Click_Game(event, player)
+      {
+        const click_pos = game.To_Click_Pos({x: event.offsetX, y: event.offsetY});
+        player.Fire(click_pos, game);
       }
     </script>
   </head>
 
   <body>
-    <button id="pause_btn">Pause</button>
+    <div id="overlay_elem" class="overlay">
+      <button id="pause_btn" hidden>Pause</button>
+
+      <span>Press "Start" to play.</span>
+      <button id="start_btn">Start</button>
+    </div>
     <game-arena id="game"></game-arena>
   </body>
 </html>
+
+<!--
+  - player weapon: high speed railgun the fires continuos weak high speed rounds.
+  - player weapon: homing missiles
+  - player weapon: cluster missiles
+  - player weapon: laser
+  - player weapon: emp
+  - player weapon: SAM sites
+-->
