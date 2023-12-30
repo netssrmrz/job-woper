@@ -228,11 +228,14 @@
       async function On_Click_Page(query)
       {
         const page = await Jobs.Get_Job_Page(query.terms);
-        console.log("On_Click_Page(): page.indeed_url =", page.indeed_url);
-        console.log("On_Click_Page(): page.count =", page.count);
+        if (page)
+        {
+          console.log("On_Click_Page(): page.indeed_url =", page.indeed_url);
+          console.log("On_Click_Page(): page.count =", page.count);
 
-        const new_window = window.open(null, "_blank");
-        new_window.document.write(page.html);
+          const new_window = window.open(null, "_blank");
+          new_window.document.write(page.html);
+        }
       }
 
       async function On_Click_Execute(query)
