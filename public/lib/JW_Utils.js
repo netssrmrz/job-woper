@@ -325,6 +325,19 @@ class JW_Utils
     return target_obj;
   }
 
+  static Calc_Radial_Start(game)
+  {
+    const w = game.canvas.width;
+    const h = game.canvas.height;
+    const r = Math.min(w, h)/2;
+    const polar_pos = 
+    {
+      r,
+      a: Utils.Random(-Math.PI, Math.PI)
+    };
+    return JW_Utils.Polar_To_Cart(polar_pos);
+  }
+
   static Elapsed_Millis(obj, millis)
   {
     let elapsed_millis = 0;

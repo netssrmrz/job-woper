@@ -41,7 +41,7 @@ class Patriot_Explosion
     {
       this.scale = {x: t, y: t};
       
-      const icbm = JW_Utils.Collision(game, this, ["ICBM", "Cluster", "Cruise", "Drone"]);
+      const icbm = JW_Utils.Collision(game, this, ["ICBM", "ICBM_M", "ICBM_F", "Cluster", "Cruise", "Drone"]);
       if (icbm)
       {
         game.Obj_Remove(icbm);

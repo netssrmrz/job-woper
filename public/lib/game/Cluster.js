@@ -7,13 +7,6 @@ class Cluster
   {
     this.obj_types = obj_types;
     
-    const polar_pos = 
-    {
-      r: Utils.Random(900, 1000),
-      a: Utils.Random(-Math.PI,Math.PI)
-    };
-    this.pos_start = JW_Utils.Polar_To_Cart(polar_pos);
-    
     this.pos_end = 
     {
       x: Utils.Random(-100, 100), 
@@ -21,9 +14,14 @@ class Cluster
     };
     
     this.t = 0;
-    this.duration_millis = 40000;
+    this.duration_millis = 10000;
 
     this.r = 3;
+  }
+
+  On_Init(game)
+  {
+    this.pos_start = JW_Utils.Calc_Radial_Start(game);
   }
 
   Calc_Pos(p1, p2, t)
@@ -55,7 +53,7 @@ class Cluster
   On_Process(millis, game)
   {
     this.t = JW_Utils.Millis_To_T(this, millis);
-    if (this.t > 0.5)
+    if (this.t > 0.3)
     {
         game.Obj_Remove(this);
 
