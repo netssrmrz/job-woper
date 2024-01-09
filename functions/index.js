@@ -82,7 +82,7 @@ export const api =
 const schedule_options = 
 {
   region: ["australia-southeast1"],
-  timeoutSeconds: 540,
+  timeoutSeconds: 1800,
   schedule: 'every day 01:00',
   timeZone: "Australia/Sydney"
 };
@@ -94,7 +94,7 @@ export const updateAllTrendsScheduled =
 const schedule_options_2 = 
 {
   region: ["australia-southeast1"],
-  timeoutSeconds: 540,
+  timeoutSeconds: 1800,
   schedule: 'every day 13:00',
   timeZone: "Australia/Sydney"
 };

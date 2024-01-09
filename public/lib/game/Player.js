@@ -23,7 +23,7 @@ class Player
 
   Render(ctx)
   {
-    ctx.strokeStyle = "#f00";
+    ctx.strokeStyle = "#a00";
     ctx.lineWidth = 1;
 
     ctx.beginPath();
@@ -40,6 +40,7 @@ class Player
   {
     this.score += score;
     game.Obj_Add(new this.obj_types.Score(score));
+    game.dispatchEvent(new CustomEvent("score", {detail: this.score}));
   }
 }
 

@@ -21,9 +21,23 @@
       {
         padding: 6px 30px 8px 40px;
       }
+      #score_msg
+      {
+        font-size: 20px;
+        position: absolute;
+        left: 25px;
+        top: 0;
+      }
       #start_btn
       {
         font-size: 32px;
+      }
+      #start_msg, #level_msg
+      {
+        font-size: 20px;
+        text-align: center;
+        background-color: #000a;
+        padding: 5px;
       }
       #game
       {
@@ -63,9 +77,15 @@
         game.Play();
 
         const player = game.Obj_Find("Player");
+        game.addEventListener("score", On_Score);
         game.addEventListener("click", (e) => On_Click_Game(e, player));
 
         overlay_elem.style.display = "none";
+      }
+
+      function On_Score(event)
+      {
+        score.innerText = event.detail;
       }
 
       function On_Game_End()
@@ -87,10 +107,13 @@
   </head>
 
   <body>
+    <div id="score_msg">Score: <span id="score">0</span></div>
     <div id="overlay_elem" class="overlay">
       <button id="pause_btn" hidden>Pause</button>
 
-      <span id="start_msg" hidden>Press "Start" to play.</span>
+      <span id="start_msg" hidden>
+        Use the mouse to eliminate all incoming missiles and save your cities.<br>
+        Press "Start" to play.</span>
       <span id="level_msg" hidden>Press "Start" to play the next level.</span>
       <button id="start_btn">Start</button>
     </div>
